@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <script src="js/jquery.min.js"></script>
+    <link href="css/mbbest.css" rel="stylesheet"/>
+</head>
+<body>
+	<style type="text/css">
+		.order_con:after,.order_num:after{position: relative;}
+		.mui-content{font-size:16px;}
+		.order_content .wbox{border-bottom: 1px dotted #DDDDDD;}
+		.order_content .wbox .price{color:red;text-align: right;}
+	</style>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <div class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></div>
+	    <h1 class="mui-title" style="color: white;">确认并支付</h1>  
+	</header>
+	<div class="mui-content mui-scroll-wrapper">
+		<div class="mui-scroll">
+	    <ul class="mui-table-view" style="margin-top: 15px;">
+	    	<li class="mui-table-view-cell" id="alipay" onclick="pay(this.id);">	    		
+	    		<div class="mui-navigate-right">
+	    			<img src="images/ico-zfb.png" width="25px" height="25px">
+	    			支付宝支付
+	    		</div>    		
+	    	</li>
+			<li class="mui-table-view-cell" id="wxpay" onclick="pay(this.id);">
+				<div class="mui-navigate-right">
+					<img src="images/ico-wx.png" width="25px" height="25px">
+	    			微信支付
+	    		</div>
+	    	</li>
+	    	<li class="mui-table-view-cell" id="pay_yue">
+	    		<div class="mui-navigate-right">
+	    			<img src="images/_r2_c2.png" width="25px" height="25px">
+	    			余额支付
+	    			<span class="mui-pull-right" style="margin-right:15px;color:#C0C0C0;font-size:12px;margin-top: 3px;">余额:<span id="xieb"></span></span>
+	    		</div>
+	    	</li>
+	    </ul>
+	    <ul class="mui-table-view" style="margin-top: 10px;">
+	    	<li class="mui-table-view-cell">
+	    		订单详情
+	    	</li>
+	    	<li class="mui-table-view-cell order_num">
+	    		<div class="wbox">
+		    		<div class="wbox-1" style="width: 25%;">订单编号:</div>
+		    		<div class="wbox-1 " style="width: 75%;" id="order_num">
+		    			
+		    		</div>
+	    		</div>
+	    	</li>
+	    	<li class="mui-table-view-cell order_con">
+	    		<div class="wbox">
+	    		<div class="wbox-1" style="width: 25%;">订单内容:</div>
+	    		<div class="wbox-1 order_content" style="width: 75%;">
+
+	    		</div>
+	    		</div>
+	    	</li>
+	    	<li class="mui-table-view-cell">
+	    		<div class="wbox">
+		    		<div class="wbox-1" style="width: 25%;">订单总额:</div>
+		    		<div class="wbox-1 " style="width: 75%;">
+		    			<span style="color:red;" id="o_price"></span>
+		    		</div>
+	    		</div>
+	    		
+	    	</li>
+	    </ul>
+	    </div>
+	</div>
+	<script type="text/javascript">
+	mui.init();
+	mui(".mui-scroll-wrapper").scroll();
+	var re=0;
+	mui.plusReady(function(){
+		var userid=plus.storage.getItem("userid");
+		getxiebi(userid);
+		var self=plus.webview.currentWebview();
+		var onum=self.onum;
+		var ocon=self.ocon;
+		var ostr=eval(ocon);
+		var oslen=ostr.length;
+		var order_price=0;
+		var str="";
+		for(var i=0;i<oslen;i++){
+			var ordername=ostr[i][0];
+			var orderprice=ostr[i][1];
+			str+="<div class='wbox'><div class='wbox-1'>"+ordername+"</div><div class='wbox-1 price'>￥"+orderprice+"</div></div>";
+		}
+		$(".order_content").append(str);
+		document.getElementById("order_num").innerHTML=onum;	
+		getorder(userid,onum);		
+		pay_yue(userid,onum);
+	});
+		//携君币余额获取
+		function getxiebi(userid){
+			$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=get_user_jifen&format=json&jsoncallback=?",
+	    	    {
+	    		    user_id:userid
+	    	    },
+	    	    function(data){
+	                var xieb=data.data;                   
+	                document.getElementById("xieb").innerHTML=xieb+"携君币";	 
+	                plus.storage.setItem("xieb",xieb);
+	    	    }
+	        );
+		}
+		//订单信息获取
+		function getorder(a,b){
+			$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.order&act=getOrder&format=json&jsoncallback=?",
+	    	    {
+	    		    user_id:a,
+	    		    sn:b
+	    	    },
+	    	    function(data){
+	                if(data.code==1000){
+	                	order_price=data.data.order_amount;
+	                	document.getElementById("o_price").innerHTML="￥"+data.data.order_amount;
+	                	plus.storage.setItem("order_price",order_price);
+	                }
+	    	    }
+	        );
+		}
+		
+		//余额支付
+		function pay_yue(userid,onum){
+			document.getElementById("pay_yue").addEventListener("tap",function(){
+				if(re==1){return;}
+				else{
+					re=1;
+	                var xb=parseFloat(plus.storage.getItem("xieb"));
+	                var op=parseFloat(plus.storage.getItem("order_price"));
+					if(xb<op){
+						var btnArray = ['确定'];
+						mui.confirm("余额不足,请选择其他支付方式", '提示',btnArray, function(e){})
+					}
+					else{
+						var btnArray = ['确定', '取消'];
+		 				mui.confirm("确定使用余额支付?", '提示', btnArray, function(e) {
+							if(e.index == 0) {
+								$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.order&act=order_vpay&format=json&jsoncallback=?",
+						    	    {
+						    		    user_id:userid,
+						    		    sn:onum
+						    	    },
+						    	    function(data){
+						                if(data.code==1000){
+						                	mui.openWindow({
+											    url:"paysuc.html",
+											    id:"paysuc",
+											    styles:{
+											      top:"0",
+											      bottom:"0",
+											    },
+											    createNew:false,
+											    show:{
+											      autoShow:true,
+											      aniShow:"pop-in",
+											      duration:250
+											    },
+											    waiting:{
+											      autoShow:false
+											    }
+											})
+											var myorder=plus.webview.getWebviewById("myorder");
+											var wodeno=plus.webview.getWebviewById("wodeno.html");
+											wodeno.reload();
+											myorder.close("none");									
+						                }
+						                else{
+						                	mui.toast("订单支付出现异常,请重试！")
+						                }
+						    	    }
+						        );
+							} 
+							else{}
+						})	
+					}
+				}
+				setTimeout(function(){re=0;},200);
+			})
+		}
+		
+
+var pays={};
+function plusReady(){
+	// 获取支付通道
+	plus.payment.getChannels(function(channels){
+		for(var i in channels){
+			var channel=channels[i];
+			pays[channel.id]=channel;
+			checkServices(channel);
+		}
+	},function(e){
+		mui.toast("获取支付通道失败："+e.message);
+	});
+}
+document.addEventListener('plusready',plusReady,false);
+// 检测是否安装支付服务
+function checkServices(pc){
+	if(!pc.serviceReady){
+		var txt=null;
+		switch(pc.id){
+			case "alipay":
+			txt="检测到系统未安装“支付宝快捷支付服务”，无法完成支付操作，是否立即安装？";
+			break;
+			default:
+			txt="系统未安装“"+pc.description+"”服务，无法完成支付，是否立即安装？";
+			break;
+		}
+		plus.nativeUI.confirm(txt,function(e){
+			if(e.index==0){
+				pc.installService();
+			}
+		},pc.description);
+	}
+}
+
+var w=null;
+var PAYSERVER='http://wap.chinaxiejun.com/index.php?app=buy.zfb&act=app_sub';
+var PAYSERVER='http://wap.chinaxiejun.com/weixin/mobile_weixin/{$sn}';
+// 支付
+function pay(id){
+	if(w){return;}//检查是否请求订单中
+	var url="";
+	var selfnum=plus.webview.currentWebview();
+	var num=selfnum.onum;
+	if(id=='alipay'){
+		url+="http://wap.chinaxiejun.com/index.php?app=buy.zfb&act=app_sub&sn="+num;
+	}
+	else{
+		if(id=='wxpay'){
+			url+="http://wap.chinaxiejun.com/weixin/mobile_weixin/"+num;
+//			url+="http://demo.dcloud.net.cn/payment/?payid="+id;
+		}else{
+			plus.nativeUI.alert("不支持此支付通道！");
+			return;
+		}
+	}
+
+//	var appid=plus.runtime.appid;
+//
+//	if(navigator.userAgent.indexOf('StreamApp')>=0){
+//		appid='Stream';
+//	}
+//	url+='&appid='+appid+'&sn='+num;
+//	alert(url)
+	w=plus.nativeUI.showWaiting();
+	// 请求支付订单
+	var xhr=new XMLHttpRequest();
+	xhr.onreadystatechange=function(){
+		switch(xhr.readyState){
+			case 4:
+			w.close();w=null;
+			if(xhr.status==200){
+				var order=xhr.responseText;
+				plus.payment.request(pays[id],order,function(result){
+					mui.toast("支付成功");
+					mui.openWindow({
+						url:"paysuc.html",
+						id:"paysuc",
+						styles:{
+							top:"0",
+							bottom:"0",
+						},
+						createNew:false,
+						show:{
+							autoShow:true,
+							aniShow:"pop-in",
+							duration:250
+						},
+						waiting:{
+							autoShow:false
+						}
+					})
+					var myorder=plus.webview.getWebviewById("myorder");
+					var wodeno=plus.webview.getWebviewById("wodeno.html");
+					wodeno.reload();
+					myorder.close("none");	
+				},function(e){
+					mui.toast("支付失败");
+				});
+			}else{
+				mui.toast("请求订单失败");
+			}
+			break;
+			default:
+			break;
+		}
+	}
+	xhr.open('GET',url);
+	xhr.send();
+}
+	</script>
+</body>
+</html>

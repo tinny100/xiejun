@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+  	<script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.min.js"></script>	
+	<link href="css/mui.min.css" rel="stylesheet" />
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<style type="text/css">
+    .mui-content{font-size: 16px;}
+    .myquestion{background-color: white;height: 150px;width:100%;padding: 10px 10px;}
+    .myquestion textarea{height: 130px;border:none;}
+    .tiwen_lx{font-size:14px;}
+    .sel{text-align: center;margin-bottom: 5px;}
+    .ui-select {text-align: center;background-color: white;}  
+    .ui-select select{position: absolute;left: 0px;top:0px;width:100%;height:3em;opacity:0;}  
+    .mui-bar-nav .mui-pull-right button{width:100%;color: white;line-height: 44px;font-size: 14px;border-radius: 0px;border:0px;background-color: #337ab7;}
+	</style>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <a class="mui-pull-right"><button type="button" id="tijiao">提交</button></a>
+	    <h1 class="mui-title" style="color: white;">我要提问</h1>  
+	</header>
+	<div class="mui-content">
+		<form style="margin: 5px 10px;">
+			<span class="tiwen_lx">选择类型：</span>		
+			<select class="sel" id="sel"> 
+				<option value="-1">--请选择--</option>
+			</select>
+		    <span class="tiwen_lx">提问标题：</span>		
+			<input type="text" placeholder="提问标题" id="tit" style="border:0px; margin-bottom: 5px;font-size:14px;"></input>		 
+	        <span class="tiwen_lx">提问对象：</span>		
+			<select class="sel" id="t_name"> 
+				<option value="0">@指定导师名</option>
+			</select>		   		
+			<span class="tiwen_lx">我的问题：</span>
+			<div class="myquestion">
+				<textarea placeholder="请输入你的问题:" id="myqst" style="font-size:14px;"></textarea>
+			</div>
+		</form> 
+	</div>
+	<script type="text/javascript">
+	mui.init();
+	//获取问答分类
+	$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.question&act=get_category&format=json&jsoncallback=?",
+		{
+			block_id:1
+		},
+		function(msg){	
+			var str="";
+			$.each(msg.data,function(i,item){				
+				str +="<option value="+item.qtype_id+">"+item.qtype_name+"</option>";				
+			})
+			$("#sel").append(str);
+		}
+	);
+	//获取名师指导
+	$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.master&act=getRecommendMaster&format=json&jsoncallback=?",
+		{
+			app:"mobile.master",
+			act:"getRecommendMaster"
+		},
+		function(msg){	
+			var str="";
+			$.each(msg.data,function(i,item){				
+				str +="<option value="+item.user_id+">"+item.name+"</option>";				
+			})
+			$("#t_name").append(str);
+		}
+	);
+	mui.plusReady(function(){
+		var userid=plus.storage.getItem("userid");
+		var re=0;
+		document.getElementById("tijiao").addEventListener("tap",function(){	
+			if(re==0){
+				re=1;
+				$('#tijiao').attr('disabled','disabled');
+				var mk_val= $("#sel").val();				
+				if(mk_val<0){
+					mui.toast("请选择问题类型");
+				}
+				else{
+					var tit=document.getElementById("tit").value;
+					if(tit.length<=0){
+						mui.toast("请填写问题标题");
+					}
+					else{
+						var t_val=$("#t_name").val();
+						var tval;
+						if(t_val>0){
+							tval=1;
+						}
+						else{
+							tval=0;
+						}
+						var wt_word=document.getElementById("myqst").value;
+						if(wt_word.length<=0){
+						    mui.toast("请输入问题");
+						}
+						else{
+						    $.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.question&act=add_question&format=json&jsoncallback=?",
+							    {
+							    	user_id : userid,
+							    	to_type : tval,
+							    	qtype : mk_val,
+							    	title : tit,
+							    	desc : wt_word,
+							    	to_user_id : t_val
+							    },
+							    function(msg){
+		                            if(msg.code==1000){
+				                    	var wenda=plus.webview.getWebviewById("wenda.html");
+				                    	wenda.reload();
+				                    	var mytiwen=plus.webview.getWebviewById("mytiwen");
+				                    	if(mytiwen){
+				                    		mytiwen.reload();
+				                    	}
+				                    	setTimeout(function(){
+		                    				mui.currentWebview.close();     		
+		                    			},800);	
+			                            mui.toast("提交成功");
+		                            }
+		                            else{
+		                               	mui.toast("提交失败");
+		                            }
+							    }
+							);					    					    	
+						}					
+					}			
+				}
+			}
+			else{
+				return;
+			}
+			setTimeout(function(){
+				re=0;
+				$('#tijiao').removeAttr("disabled");
+			},200)
+	    })
+		
+	    //返回上一页提示是否保存问题
+		mui.back = function(){
+			var mk_name= $("#sel").val();
+			var wt_word=document.getElementById("myqst").value;
+			if(mk_name>=0 || wt_word.length>0){
+				var btn = ["返回","点错了"];
+				mui.confirm('问题尚未提交，是否返回上一页？','提示',btn,function(e){
+					if(e.index==0){
+					    mui.currentWebview.close();
+					}
+	            });
+	        }
+			else{
+			    mui.currentWebview.close();
+			}
+		}	
+	})
+	</script>
+</body>
+</html>

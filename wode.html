@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<title></title>
+    <script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+    <link href="css/iconfont.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<style type="text/css">
+	body,button{font-family:"微软雅黑";}
+    .fenlei li, .fenlei li i{font-size:16px;}
+	</style>
+	<div class="mui-content fenlei">
+		<div class="main_header wbox">
+			<div class="user_img wbox-1"><img height="50px" width="50px" src="images/hd.jpg"></div>
+		    <div class="user_name wbox-1">
+		        <div class="name">点击登录</div>
+		        <div class="user_id">立即开启携君学习之旅</div>
+		        <div class="btn wbox">
+			        <div class="btn_left wbox-1"><button id="login" type="button" style="width:80px;height: 25px;">立即登录</button></div>
+			        <div class="btn_right wbox-1"><button id="regist" type="button" style="width:80px;height: 25px;">立即注册</button></div>
+		        </div>
+		    </div>
+        </div>
+
+		<ul class="mui-table-view fenlei mui-table-view-chevron">
+			<li class="mui-table-view-cell">	
+				<div class="mui-navigate-right">
+					<i class="icon iconfont icon-tuijian"></i>
+					分享推荐
+					<span class="mui-pull-right" style="margin-right:-30px;color:#2A50A2;font-size:12px;margin-top: 3px;">推荐注册成功即送10携君币</span>
+				</div>
+			</li>
+			<li class="mui-table-view-cell">	
+			    <div class="mui-navigate-right">
+					<i class="icon iconfont icon-yijianfankui"></i>
+					意见反馈
+				</div>
+			</li>
+			<li class="mui-table-view-cell">	
+			    <div class="mui-navigate-right">
+					<i class="icon iconfont icon-bangzhuzhongxin"></i>
+					帮助中心
+				</div>
+			</li>
+		</ul>
+	</div>
+	
+		<script type="text/javascript">
+			 mui.init({
+				keyEventBind: {
+					backbutton: false
+				}
+			});
+            function openwindow(x,y){
+	            mui.openWindow({
+					url:x,
+					id:y,
+					styles:{
+						top:"0",
+						bottom:"0",
+						popGesture:'none'
+					},
+					createNew:false,
+					show:{
+					    autoShow:true,
+					    aniShow:"pop-in",
+					    duration:250
+					},
+					waiting:{
+					    autoShow:false,				   
+					}
+				});
+            }
+            var login_url="login.html";
+			var login_id="login";
+			var regist_url="regist.html";
+			var regist_id="regist";
+			mui.plusReady(function(){
+				var self=plus.webview.currentWebview();
+				var re=0;
+				self.setStyle({bounceBackground:"#efeff4",bounce:"vertical"});	
+				document.getElementById("login").addEventListener('tap',function(){
+					if(re==0){
+						re=1;
+						$('#login').attr('disabled','disabled');
+	                    openwindow(login_url,login_id);
+	                    setTimeout(function(){
+	                    	re=0;
+							$('#login').removeAttr("disabled");
+	                    },300)
+					}
+					else{
+						return;
+					}
+			    });
+				document.getElementById("regist").addEventListener('tap',function(){
+					if(re==0){
+						re=1;
+						$('#regist').attr('disabled','disabled');
+	                    openwindow(regist_url,regist_id);
+	                    setTimeout(function(){
+	                    	re=0;
+							$('#regist').removeAttr("disabled");
+	                    },300)
+					}
+					else{
+						return;
+					}                  
+			    });
+		        mui(".mui-table-view").on('tap','li',function(){
+		        	if(re==1){return;}
+		        	else{
+		        		re=1;
+			        	plus.nativeUI.alert("亲，还没有登录哦！！",function(e){ 
+			        		if(e.index==0){
+				        		openwindow(login_url,login_id);
+							}        		
+			        	},"提示","确定"); 
+			        }
+		        	setTimeout(function(){re=0;},200);
+			    })
+	        });
+        </script>
+</body>
+</html>

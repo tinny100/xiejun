@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<title></title>
+    <script language="javascript" src="js/jquery.min.js"></script>
+    <script src="js/jquery.lazyload.js"></script>
+	<script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>   
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+	<style type="text/css">
+		.sw2 .swiper-slide .mainnav .item a:hover{color:none;}
+	</style>
+		<div id="slider" class="mui-slider">
+			<div class="mui-slider-group mui-slider-loop">
+				<div class="mui-slider-item mui-slider-item-duplicate"><img src="images/sy3.jpg" width="100%"></div>			        
+	            <div class="mui-slider-item"><img src="images/sy1.jpg" width="100%"></div>
+	            <div class="mui-slider-item"><img src="images/sy2.jpg" width="100%"></div>
+	            <div class="mui-slider-item"><img src="images/sy3.jpg" width="100%"></div>                 
+	            <div class="mui-slider-item mui-slider-item-duplicate"><img src="images/sy1.jpg" width="100%"></div>
+			</div>
+			<div class="mui-slider-indicator">
+				<div class="mui-indicator mui-active"></div>
+				<div class="mui-indicator"></div>
+				<div class="mui-indicator"></div>
+			</div>
+		</div>	
+
+	<div class="sw2">
+            <div class="swiper-slide">				
+				<div class="mainnav">
+					<div class="item ta-c">
+				    		<img src="images/zhihui.png" width="60%" />
+					       	<div class="mt10">智慧谋略</div>				        
+				    </div>
+				    <div class="item ta-c">			    	
+				            <img src="images/zhanlue.png" width="60%" />
+				            <div class="mt10">战略运营</div>				        
+				    </div>
+				    <div class="item ta-c">
+				            <img src="images/gonj.png" width="60%" />
+				            <div class="mt10">工具方法</div>
+				    </div>
+				    <div class="item ta-c">
+				            <img src="images/zhaopin.png" width="60%" />
+				            <div class="mt10">招聘技能</div>
+				    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sw2">
+            <div class="swiper-slide">				
+				<div class="mainnav">
+					<div class="item ta-c">
+				    	<img src="images/peixun.png" width="60%" />
+				       	<div class="mt10">培训技能</div>
+				    </div>
+				    <div class="item ta-c">
+				            <img src="images/jixiao.png" width="60%" />
+				            <div class="mt10">绩效实操</div>
+				    </div>
+				    <div class="item ta-c">
+				            <img src="images/fuli.png" width="60%" />
+				            <div class="mt10">薪酬福利</div>
+				    </div>
+				    <div class="item ta-c">
+				            <img src="images/jili.png" width="60%" />
+				            <div class="mt10">员工激励</div>
+				    </div>
+                </div>    
+            </div>
+        </div>
+<script>
+var swiper1 = new Swiper('.sw2 .swiper-container', {
+    pagination: '.sw2 .swiper-pagination',
+    paginationClickable: true,
+    spaceBetween: 10,
+    centeredSlides: true,
+    autoplay: 0,
+    autoplayDisableOnInteraction: false,
+    loop: true
+});
+</script>
+
+<div class="bgcc clearfix pt10"></div>
+<div class="item-content">
+	<div class="item-tit">
+		<div class="mc">线上点播</div>
+		<a href="#" class="more">更多</a>
+	</div>
+	<ul class="mui-table-view mui-grid-view showlist"></ul>
+</div>
+
+		<script type="text/javascript">	
+		    mui.init({
+				keyEventBind: {
+					backbutton: false
+				}
+			});
+			mui('.mui-slider').slider().gotoItem(0);
+	    	mui('.mui-slider').slider({interval:5000});  
+			var re=0;
+			$.ajax({
+			   type: "get",
+			   dataType: "json",
+			   async:false,
+			   url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			   data:{app : "mobile.course",
+						act : "dianbo",
+						cur_page : 1,
+						page_size : 8},
+			   success: function(msg){			   	
+                        var d  = msg.data.list;
+						var str='';
+						$.each(d, function(i,item){							
+							str += "<li class='mui-table-view-cell mui-media mui-col-xs-6'><a class='aa' cid='"+item.c_id+"' cname='"+item.c_name+"'>";
+							str += "<img class='mui-media-object' src='images/grey.jpg' data-original='"+item.img+".200x123.jpg'>";
+							str += "<div class='mui-media-body'>"+item.c_name+"</div>";
+							str += "</a></li>";						
+						});
+						$(".showlist").append(str);
+				$("img.mui-media-object").lazyload(); //调用懒加载
+				}
+			});
+
+                //点击跳转视频详情
+				mui('.showlist').on("tap", "a" ,function(){
+					if(re==1){return;}
+					else{
+						re=1;
+						var cid = $(this).attr("cid");
+						var cname = $(this).attr("cname");							
+						mui.openWindow({
+							    url: 'vdetail-info.html', 
+							    id:'vdetail-info',
+							    styles:{
+								    top:'0',
+								    bottom:'0',
+								    popGesture:'none',
+								    hardwareAccelerated:true							
+							    },
+							    extras:{
+							    	c_id:cid,
+									c_name:cname
+							    },
+							    show:{
+									autoShow:true,
+					                aniShow:"pop-in",
+					                duration:250
+							    },
+							    waiting:{
+							    	autoShow:false
+							    }
+							});
+						}
+						setTimeout(function(){re=0;},200);
+					});
+						
+			    mui(".mainnav").on("tap",".item",function(){
+			    	if(re==1){return;}
+			    	else{
+			    		re=1;
+						var mk_name = ($(this).text()).replace(/(^\s*)|(\s*$)/g, "");//获取分类名称，去除文本两端空格		
+						mui.openWindow({
+						    url: 'list.html', 
+						    id:'list',
+						    styles:{
+						    	top:'0',
+						    	bottom:'0'
+						    },
+						    extras:{
+								mk_name:mk_name
+						    },
+						    show:{
+								autoShow:true,
+								aniShow:"pop-in",
+								duration:250
+						    },
+						     waiting:{
+					  			 autoShow:false,
+				        	}
+					});
+				}
+			    	setTimeout(function(){re=0;},200);
+			});
+			
+			$(".item-tit a").click(function(){//点击更多跳转		
+				if(re==1){return;}
+				else{					
+					re=1;
+					mui.openWindow({
+					    url: 'list.html', 
+					    id:'list',
+					    styles:{
+					    	top:'0',
+					    	bottom:'0'
+					    },
+					    extras:{
+					    	d_id: 0,
+							mk_name:'线上点播'
+					    },
+					    show:{
+							autoShow:true,
+							aniShow:"pop-in",
+							duration:250
+					    },
+					    waiting:{
+				  			autoShow:false
+					     }
+					});
+				}
+				setTimeout(function(){re=0;},200);
+				})
+			
+        if(mui.os.android){
+	        //检测版本
+	    	var wgtVer=null;
+			function plusReady(){
+			    plus.runtime.getProperty(plus.runtime.appid,function(inf){
+			        wgtVer=inf.version;	
+			        check_update(wgtVer);	        
+			    });	    
+			}
+			
+			if(window.plus){
+			    plusReady();}
+			else{
+			    document.addEventListener('plusready',plusReady,false);}
+			
+			function check_update(wgtVer){
+			        $.ajax({
+						   type: "get",
+						   dataType: "json",
+						   async: false,
+						   url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+						   data:{ 
+						   		  app : "mobile.apps",
+						          act : "check_update",
+								  version: wgtVer
+						   },
+						   success: function(data){
+						   	    if(data.code==1000){
+						   	    	var wgtUrl=data.data.url;
+						   	    	var btnArray = ['立即更新', '以后再说'];
+							        mui.confirm("检测到有新的版本V"+data.data.version+",是否立即更新！", '版本更新', btnArray, function(e) {
+										if(e.index == 0) {
+											if(mui.os.ios){	
+												var url='itms-apps://itunes.apple.com/';//应用在appstore的地址
+												plus.runtime.openURL(url);
+											}
+											else if(mui.os.android){
+												downWgt(wgtUrl);  
+											} 
+										} 
+										else{}
+							        })	
+						   	    }
+							    else{						    	
+							    }
+						   }
+					});
+			}
+			    //下载更新包
+				function downWgt(wgtUrl){
+				    plus.nativeUI.showWaiting("下载更新包，请稍候...");
+				    plus.downloader.createDownload( wgtUrl, {}, function(d,status){
+				        if(status==200){ 
+				            plus.nativeUI.alert("更新包下载成功！");
+				            setTimeout(function(){
+				            	installWgt(d.filename);
+				            },1000) 
+				        } else {
+				            plus.nativeUI.alert("下载失败，请检查网络！");
+				        }
+				        plus.nativeUI.closeWaiting();
+				    }).start();
+				}
+				
+				// 更新应用资源  
+				function installWgt(path){
+				    plus.nativeUI.showWaiting("安装更新文件...");
+				    plus.runtime.install(path,{},function(){
+				        plus.nativeUI.closeWaiting();        
+				        plus.nativeUI.alert("应用资源更新完成！",function(){
+				            plus.runtime.restart();
+				        });
+				    },function(e){
+				        plus.nativeUI.closeWaiting();        
+				        plus.nativeUI.alert("安装更新文件失败["+e.code+"]："+e.message);
+				    });
+				}	
+		}
+		</script>
+</body>
+</html>

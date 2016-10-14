@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <script language="javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+    </script>
+</head>
+<body>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <a class="mui-pull-right" style="color: white;line-height: 44px;font-size: 14px;" id="tijiao" onclick="changename();">提交</a>
+	    <h1 class="mui-title" style="color: white;">修改昵称</h1>  
+	</header>
+	<div class="mui-content" style="margin-top:10px;">
+	    <form action="" method="post" onsubmit="changename();return false;">
+	    	<div class="mui-input-row mui-search">     
+				<input id="nickname" type="text" class="mui-input-clear" style="border:0px;">
+			</div>
+        </form>
+	</div>
+	<script>
+	
+		mui.plusReady(function(){	
+			var nickname=plus.storage.getItem("nickname");
+			var webView = plus.webview.currentWebview().nativeInstanceObject();
+			document.getElementById("nickname").value=nickname;			
+			plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
+	        if(mui.os.ios){
+	      		 webView.plusCallMethod({"setKeyboardDisplayRequiresUserAction":false});
+	        	document.getElementById("nickname").focus();
+	        }
+        });
+        function changename(){
+        	var userid=plus.storage.getItem("userid");
+        	var nname=document.getElementById("nickname").value;
+        	$.getJSON("http://api.chinaxiejun.com/index.php?jsoncallback=?",
+				{
+					app:"mobile.member", 
+					act:"edit_info",
+					user_id:userid,
+					nick_name:nname
+				},
+				function(msg){
+					if(msg.code==1000){
+						mui.toast("修改成功");
+						var myinfo=plus.webview.getWebviewById("myinfo");
+                        myinfo.evalJS("document.getElementById('nick_name').innerHTML='"+nname+"';");
+                        var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    	wodeno.reload();                       					
+						mui.back();					
+					}
+					else{
+						mui.toast("修改失败，请重试");
+					}
+			    }
+			);
+        }
+	</script>
+</body>
+</html>

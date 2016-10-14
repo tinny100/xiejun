@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="css/mui.min.css">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<style>	
+			.update {font-style: normal;color: #999999;margin-right: -25px;font-size: 15px;}
+			.fenlei{margin-top: 10px;}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+		    <button type="button" class="mui-left mui-action-back mui-btn mui-btn-link mui-btn-nav mui-pull-left" style="color:white;">
+				<span class="mui-icon mui-icon-left-nav"></span>
+			</button>
+		    <h1 class="mui-center mui-title" style="color:white;">设置</h1>
+		</header>
+
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<ul class="mui-table-view mui-table-view-chevron fenlei">
+					<li class="mui-table-view-cell">									
+						<a id="update" class="mui-navigate-right">版本更新<i class="mui-pull-right update">V<span id='c_version'></span></i></a>
+					</li>
+				</ul>
+			</div>
+		</div>	
+	</body>
+	<script>
+		mui.init();
+		mui('.mui-scroll-wrapper').scroll();
+		var re=0;
+		mui.plusReady(function(){
+			var userid=plus.storage.getItem("userid");
+			if(userid){
+				$(".mui-scroll").append("<ul class='mui-table-view fenlei'><li class='mui-table-view-cell' style='text-align: center;'><a id='exit' style='color:red;'>退出登录</a></li></ul>");
+			}
+		
+	
+		//退出操作
+		var ex=document.getElementById("exit");
+		if(ex){
+			document.getElementById('exit').addEventListener('tap', function(){
+				if(re==1){return;}
+				else{
+					re=1;
+					if (mui.os.ios) {
+						app.setState({});
+					    plus.webview.currentWebview().close();
+						var wode=plus.webview.getWebviewById("wode.html");
+					    wode.show();
+						plus.storage.removeItem("username");
+						plus.storage.removeItem("password");
+						plus.storage.removeItem("userid");
+						var shop=plus.webview.getWebviewById("shop.html");
+						shop.reload();
+						var shouy=plus.webview.getLaunchWebview();   
+						shouy.evalJS("checknum(0)");
+					}
+					if (mui.os.android){
+					var btnArray = [{title: "注销当前账号"}, {title: "直接关闭应用"}];
+					plus.nativeUI.actionSheet({
+						cancel: "取消",
+						buttons: btnArray
+					}, function(event) {
+						var index = event.index;
+						switch (index) {
+							case 1:
+								app.setState({});
+								plus.webview.currentWebview().close();
+						        var wode=plus.webview.getWebviewById("wode.html");
+					            wode.show();
+								plus.storage.removeItem("username");
+								plus.storage.removeItem("password");
+								plus.storage.removeItem("userid");
+								var shop=plus.webview.getWebviewById("shop.html");
+								shop.reload();
+								var shouy=plus.webview.getLaunchWebview();   
+								shouy.evalJS("checknum(0)");
+									break;
+								case 2:
+								plus.runtime.quit();
+								break;
+						}
+					});}
+					var shop=plus.webview.getWebviewById("shop.html");
+					shop.reload();
+					var shouy=plus.webview.getLaunchWebview();   
+					shouy.evalJS("checknum(0)");
+				}
+				setTimeout(function(){re=0;},200);
+			});
+		}
+	})	
+		var wgtVer=null;
+		function plusReady(){
+		    // 获取并显示当前版本号
+		    plus.runtime.getProperty(plus.runtime.appid,function(inf){
+		        wgtVer=inf.version;
+		        document.getElementById("c_version").innerHTML=wgtVer;
+		        document.getElementById("update").addEventListener('tap', function() {
+		        	if(re==1){return;}
+		        	else{
+		        		re=1;
+				        plus.nativeUI.showWaiting("检测更新...");
+				        $.ajax({
+						    type: "get",
+						    dataType: "json",
+						    async: true,
+						    url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+						    data:{ 
+						   		  app : "mobile.apps",
+						          act : "check_update",
+								  version: wgtVer
+						    },
+						    success: function(data){	
+						   	    plus.nativeUI.closeWaiting();
+						   	    if(data.code==1000){
+						   	    	var wgtUrl=data.data.url;
+						   	    	var btnArray = ['立即更新', '以后再说'];
+							        mui.confirm("检测到有新的版本V"+data.data.version+",是否立即更新！", '版本更新', btnArray, function(e) {
+										if(e.index == 0) {
+											if(mui.os.ios){	
+												var url='itms-apps://itunes.apple.com/';//应用在appstore的地址
+												plus.runtime.openURL(url);
+											}
+											else if(mui.os.android){
+												downWgt(wgtUrl);  
+											}
+										} 
+										else{}
+							        })	
+						   	    }
+							    else{
+							    	plus.nativeUI.alert("已是最新版本！");
+							    }
+						   }
+					});
+				}
+		        setTimeout(function(){re=0;},200);
+		    });   
+		});
+    }
+		
+		if(window.plus){
+		    plusReady();}
+		else{
+		    document.addEventListener('plusready',plusReady,false);}		
+		
+        // 检测更新			
+			function downWgt(wgtUrl){
+			    plus.nativeUI.showWaiting("下载更新包，请稍候...");
+			    plus.downloader.createDownload( wgtUrl, {}, function(d,status){
+			        if ( status == 200 ) { 
+			            plus.nativeUI.alert("更新包下载成功！");		            
+			            setTimeout(function(){
+			            	installWgt(d.filename);
+			            },1000) 
+			        } else {
+			            plus.nativeUI.alert("下载失败！");
+			        }
+			        plus.nativeUI.closeWaiting();
+			    }).start();
+			}
+			
+			// 更新应用资源  
+			function installWgt(path){
+			    plus.nativeUI.showWaiting("安装更新文件...");
+			    plus.runtime.install(path,{},function(){
+			        plus.nativeUI.closeWaiting();        
+			        plus.nativeUI.alert("应用资源更新完成！",function(){
+			            plus.runtime.restart();
+			        });
+			    },function(e){
+			        plus.nativeUI.closeWaiting();        
+			        plus.nativeUI.alert("安装更新文件失败["+e.code+"]："+e.message);
+			    });
+			}
+	</script>
+</html>

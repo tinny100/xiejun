@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<title></title>
+   <script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<style type="text/css">
+	.mui-table-view.mui-grid-view{padding: 0px 10px 0px 0px;}
+	.prompt{text-align: center;padding-top:100px;}
+</style>
+<body class="bgcc">
+	<div class="mui-scroll">
+		<ul class="mui-table-view mui-grid-view st1 showlist nobd-t" style="border:0px;"></ul>
+		<div class="Refresh Refresh1"></div>
+	</div>
+
+	<script type="text/javascript" id="jiazai">
+	var curpage=1;
+	var st = 0,re=0;
+	var c_id=0;
+	var pagenum;
+	mui.plusReady(function(){		
+			var current=plus.webview.currentWebview();
+			c_id=current.c_id;
+            var w=plus.nativeUI.showWaiting();
+			var t=setInterval(function(){//显示等待框
+			w.setTitle("");
+			if(!c_id){
+				$(".prompt").remove();
+				$(".mui-scroll").append("<div class='prompt'>该分类下还没有视频，去其他分类下看看吧！！</div>");}
+			if(c_id=="xd"){
+				dianbojz();
+			}
+			else{
+				dianboRefresh(c_id);
+            }
+			clearInterval(t);
+			w.close();
+			}, 500);
+		});
+
+        function dianbojz(){//点播页数据
+				var pagesize = 10;
+				$.getJSON("http://api.chinaxiejun.com/index.php?jsoncallback=?", {
+					app : "mobile.course",
+					act : "dianbo",
+					cur_page : curpage,
+					page_size : pagesize},
+					function(msg){
+						var d  = msg.data.list;
+						pagenum = Math.ceil(msg.data.total_num/pagesize);
+						if (d.length==0 &&  pagenum==0){	
+							$(".prompt").remove();
+							$(".mui-scroll").append("<div class='prompt'>该分类下还没有视频，去其他分类下看看吧！！</div>");}
+						var str = "";	
+						$.each(d, function(i,item){									
+							str += "<li class='mui-table-view-cell mui-media mui-col-xs-6'><a cid='"+item.c_id+"' cname='"+item.c_name+"'>";
+							str += "<img src='"+item.img+".200x123.jpg' class='mui-media-object' />";
+							str += "<div class='mui-media-body'><div>"+item.c_name+"</div><div><span>"+item.teacher+"</span> <span class='ml10'>"+item.num_learner+"人在学</span></div></div>";
+							str += "</a></li>";		
+						});
+						$(".showlist").append(str);	         								
+					}			
+				);	
+			}
+		    function dianboRefresh(dd) {//按分类获取数据
+				var pagesize = 10;
+				$.getJSON("http://api.chinaxiejun.com/index.php?jsoncallback=?", {
+					app : "mobile.course",
+					act : "cate_course",
+					cur_page : curpage,
+					page_size : pagesize,
+					cate_id : dd},
+					function(msg){
+						var d  = msg.data.list;
+						pagenum = Math.ceil(msg.data.total_num/pagesize);
+						if (d.length==0 &&  pagenum==0){	
+							$(".prompt").remove();
+							$(".mui-scroll").append("<div class='prompt'>该分类下还没有视频，去其他分类下看看吧！！</div>");}
+						var str = "";	
+						$.each(d, function(i,item){									
+							str += "<li class='mui-table-view-cell mui-media mui-col-xs-6'><a cid='"+item.c_id+"' cname='"+item.c_name+"' play_type='"+item.play_type+"'>";
+							str += "<img src='"+item.img.replace('img.hr_api.com','img.chinaxiejun.com')+".200x123.jpg' class='mui-media-object' />";
+							str += "<div class='mui-media-body'><div>"+item.c_name+"</div><div><span>"+item.teacher+"</span> <span class='ml10'>"+item.num_learner+"人在学</span></div></div>";
+							str += "</a></li>";		
+						});
+						$(".showlist").append(str);	         								
+					}			
+				);	
+			}
+				//跳转视频详情页
+				mui('.showlist').on("tap", "a" ,function(){
+					if(re==1){return;}
+					else{ 
+						re=1;
+						var cid = $(this).attr("cid");
+						var cname = $(this).attr("cname");							
+							mui.openWindow({
+								url:"vdetail-info.html",
+								id:"vdetail-info",
+								styles:{
+									top:"0",
+									bottom:"0",
+							 		popGesture:'none',
+								    hardwareAccelerated:true				
+								},
+								extras:{
+									c_id: cid,
+									c_name: cname
+							    },
+								createNew:false,
+								show:{
+									autoShow:true,
+									aniShow:"pop-in",
+									duration:250
+								},
+								waiting:{
+									autoShow:false
+								}
+							})
+						}
+						setTimeout(function(){re=0;},200);		
+						});
+						
+				//滚动到最下面加载
+				$(document).ready(function() {
+				var totalheight = 0;
+				$(window).scroll(function() {
+					var srollPos = $(window).scrollTop(); //滚动条距顶部距离(页面超出窗口的高度)  
+					totalheight = parseFloat($(window).height()) + parseFloat(srollPos);
+					$(".Refresh1").html("<button class='btn-refresh' disabled='disabled'>加载中<img src='images/loading.gif' width='20' /></button>");
+					if ($(document).height() <= totalheight) {
+						setTimeout(function() {
+							curpage++;
+							dianboRefresh(c_id);
+							if (pagenum < curpage) {
+								$(".Refresh1").html("<button class='btn-refresh' disabled='disabled'>没有更多数据了</button>");
+							}
+						}, 1000)
+					}
+				});
+			});
+</script>
+
+</body>
+</html>

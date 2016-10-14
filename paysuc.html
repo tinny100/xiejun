@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link href="css/mbbest.css" rel="stylesheet"/>
+    
+</head>
+<body>
+	<style type="text/css">
+		.paysuc{width:100%;text-align: center;}
+	</style>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <h1 class="mui-title" style="color: white;">支付成功</h1>  
+	</header>
+	<div class="mui-content" style="margin-top: 80px;">
+	    <div class="paysuc">
+	     	<img src="images/paysuc.png" width="40px">
+	     	<span style="font-size:16px">订单支付成功!</span>
+	    </div>
+	    <div class="paysuc" style="margin-top: 80px;">
+	     	<button type="button" id="goorder" class="mui-btn mui-btn-blue mui-btn-outlined" style="width:100px">我的订单</button>
+	    </div>
+	</div>
+	<script type="text/javascript" charset="utf-8">
+      	mui.init();
+      	mui.plusReady(function(){
+	      	var re=0;
+	      	document.getElementById("goorder").addEventListener("tap",function(){ 
+	      		if(re==1){return;}
+	      		else{
+	      			re=1; 
+
+		      		mui.openWindow({
+							url:"myorder.html",
+							id:"myorder",
+							styles: {
+								top: "0px", 
+								bottom: "0px", 
+								popGesture:'none',
+								bounce:"none"
+							},
+							show: {
+								autoShow: true, 
+								aniShow: "pop-in",
+								duration: 250 
+							},
+							waiting: {
+								autoShow: false, 			   
+							}
+						});
+					}
+				setTimeout(function(){re=0;},200);
+	      	})     		
+      	})
+    </script>
+</body>
+</html>

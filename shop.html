@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+	<script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.view.js"></script>
+    <script src="js/app.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<style type="text/css">
+	.balance{position:fixed;bottom:0;background-color: white;height: 50px;width:100%;line-height: 50px;font-size: 16px;}
+	.balance .bal_left{width:25%;}
+	.balance .bal_center{width:40%;text-align: right;margin-right: 10px;}
+	.balance button{background-color:#007AFF;text-align: center;color:white;}
+	.mui-table-view-cell{padding-left: 0px;padding-right: 0px;}
+	.mui-table-view-cell .bal_left{width:10%;}
+	.mui-table-view-cell .bal_center{width:45%;text-align: center;}
+	.mui-table-view-cell .bal_right{width:45%;font-size: 14px;}
+	.bal_right .gname{height: 60px;text-align:center;margin: 0px 10px 0px 0px;}
+	.bal_right .ginfo{height:20px;line-height:20px;width:100%;}
+	.bal_right .ginfo .price{width: 50%;color:red;}
+	.bal_right .ginfo .count{text-align: right;margin-right: 10px;}	
+</style>
+	<div class="mui-content">
+		<ul id="goodshop" class="mui-table-view" style="margin-top: 0px;">
+		</ul>
+		<div style="height:50px"></div>
+	    <div class="balance wbox">
+	    	<div class="bal_left wbox-1">				
+				<div class="mui-checkbox mui-left">
+					<input name="checkboxall" id="checkall" type="checkbox" style="top:10px;left:5px;" onclick="cli();">
+					<span style="margin-left: 35px;">全部</span>
+				</div>									
+	    	</div>
+	    	<div class="bal_center wbox-1">
+	    		合计:<span style="color:red;">￥</span><span id="allprice" style="color:red;">0</span>
+	    	</div>
+	    	<button type="button" class="mui-btn bal_right wbox-1" id="torder" style="height: 50px;width:100px;border: 0px;border-radius: 0px;">
+	    		提交订单(<span id="gcount">0</span>)
+	    	</button>
+	    </div>
+	</div>
+	<script type="text/javascript">
+ 		mui.init({
+			keyEventBind: {
+				backbutton: false
+			}
+		});
+		var re=0;
+		function checkcar(){
+			var ht=$(".mui-table-view").find("li").length;
+			if(ht==0){
+				$(".mui-table-view").remove();
+				$(".balance").remove();
+				$(".mui-content").append("<div style='font-size:16px;text-align: center;'>购物车中还没有视频!</div>");
+			}
+		}
+
+		mui.plusReady(function(){
+			plus.webview.currentWebview().setStyle({scrollIndicator:'none'});//隐藏滚动条 
+			var userid=plus.storage.getItem("userid");
+			if(plus.storage.getItem("goodcount") && plus.storage.getItem("gooduserid")){
+				var m=plus.storage.getItem("goodcount");
+				var gooduserid=plus.storage.getItem("gooduserid");
+				if(userid==gooduserid){
+					var str="";
+					for(var i=1;i<=m;i++){
+						if(plus.storage.getItem("goodcid"+i)){
+							var goodiurl=plus.storage.getItem("goodiurl"+i);
+							var goodcname=plus.storage.getItem("goodcname"+i);
+							var goodprice=plus.storage.getItem("goodprice"+i);						
+							var goodcid=plus.storage.getItem("goodcid"+i);
+							str +="<li class='mui-table-view-cell' style='height: 100px;' value='"+i+"'>";
+							str +="<div class='mui-slider-right mui-disabled' style='width:60px;height:99px;text-align:center'><a class='mui-btn mui-btn-red' style='padding: 15px;'>删除</a></div>";
+							str +="<div class='mui-slider-handle wbox'><div class='bal_left wbox-1'><div class='mui-checkbox mui-left'><input name='checkbox' id='check"+i+"' type='checkbox' value='"+goodprice+"' style='top:25px;left:5px;' onclick='call();'></div></div>";
+						    str +="<div class='bal_center wbox-1'><img cid='"+goodcid+"' src='"+goodiurl+"' width='120px' height='80px;'></div>";
+		                    str +="<div class='bal_right wbox-1'><div class='gname'>"+goodcname+"</div><div class='ginfo wbox'><div class='price wbox-1'>￥"+goodprice+"</div><div class='count wbox-1'>x1</div></div></div></div></li>";
+						}
+						else{
+							str +="";
+						}
+					}
+					$(".mui-table-view").append(str);
+					checkcar();					
+					//获取商品数量，设置显示数量
+					var check_num=$("input[name='checkbox']").length;
+					if(!check_num){
+						check_num=0;
+					}
+					var shouy=plus.webview.getLaunchWebview();
+					shouy.evalJS("checknum("+check_num+","+userid+")");
+					//点击图片跳转视频详情					
+					mui(".mui-table-view-cell .bal_center").on("tap","img",function(){
+						if(re==1){return;}
+						else{
+							re=1;
+								var cid = $(this).attr("cid");						
+								mui.openWindow({
+								    url: 'vdetail-info.html', 
+								    id:'vdetail-info',
+									    styles:{
+									    top:'0',
+									    bottom:'0',
+							        	popGesture:'none',
+										hardwareAccelerated:true								    
+								    },
+								    extras:{
+								    	c_id:cid
+								    },
+								    show:{
+										autoShow:true,
+						                aniShow:"slide-in-right",
+						                duration:200
+								    },
+								    waiting:{
+								    	autoShow:false
+								    }
+								});
+							}
+						setTimeout(function(){re=0;},200)
+					});
+				}
+				else{
+					$(".mui-table-view").remove();
+					$(".balance").remove();
+					$(".mui-content").append("<div style='font-size:16px;text-align: center;'>购物车中还没有视频!</div>");
+				}
+			}
+			else{
+				$(".mui-table-view").remove();
+				$(".balance").remove();
+				$(".mui-content").append("<div style='font-size:16px;text-align: center;'>购物车中还没有视频!</div>");
+			}
+			
+			//提交订单
+			var torder=document.getElementById("torder");
+			if(torder && re==0){			
+				document.getElementById("torder").addEventListener("tap",function(){
+				re=1;
+				$('#torder').attr('disabled','disabled');
+				var coll = document.getElementsByName("checkbox");
+				var n=0;		
+				$("input[name='checkbox']").each(function(){			
+					if($(this).is(':checked')==true){				
+						n++;
+					}			
+				})
+				if(n<=0){
+					mui.toast("还没有选择任何视频哦!");
+				}	
+				else{
+					var userid=plus.storage.getItem("userid");
+					var username=plus.storage.getItem("username");
+					var tArray = new Array();  //定义一个二维数组存放视频信息
+						for(var k=0;k<n;k++){       			
+							tArray[k]=new Array();    
+							for(var j=0;j<2;j++){      				
+								tArray[k][j]="";       
+							}
+						}
+					var ocon = new Array();  //定义一个二维数组存放视频信息
+						for(var k=0;k<n;k++){       			
+							ocon[k]=new Array();    
+							for(var j=0;j<2;j++){      				
+								ocon[k][j]="";       
+							}
+						}
+					//赋值	
+					var selfnum=[];
+					var x=0;		
+					$("input[name='checkbox']").each(function(){				
+						if($(this).is(':checked')==true){					
+							var self_num=parseInt(($(this).attr("id")).substr(5));
+							var oname=plus.storage.getItem("goodcname"+self_num);
+							var oprice=plus.storage.getItem("goodprice"+self_num);
+							var c_id=plus.storage.getItem("goodcid"+self_num);					
+	 						tArray[x][0]='"id":'+c_id;
+	 						tArray[x][1]='"type":'+1;
+	 						ocon[x][0]='"'+oname+'"';
+	 						ocon[x][1]='"'+oprice+'"';
+	 						selfnum[x]=self_num;
+	 						x++;
+						}
+					});
+	
+	                //将二维数组转化为字符串
+					function getString( objarr ){
+					　　var typeNO = objarr.length;
+					  　 var tree = "[";
+					 　　for (var i = 0 ;i < typeNO ; i++){
+					   　　　tree += "{";
+					   　　　tree +=objarr[i][0]+",";
+					   　　　tree +=objarr[i][1];
+					  　　　 tree += "}";
+					  　　　 if(i<typeNO-1){
+					    　　 　　tree+=",";
+					 　　　  }
+					  　 }
+					  　 tree+="]";
+					  　 return tree;
+					}
+					
+					function getStr(objarr){
+					　　var typeNO = objarr.length;
+					  　 var tree = "[";
+					 　　for (var i = 0 ;i < typeNO ; i++){
+					   　　　tree += "[";
+					   　　　tree +=objarr[i][0]+",";
+					   　　　tree +=objarr[i][1];
+					  　　　 tree += "]";
+					  　　　 if(i<typeNO-1){
+					    　　 　　tree+=",";
+					 　　　  }
+					  　 }
+					  　 tree+="]";
+					  　 return tree;
+					}
+					var order_data=getString(tArray);
+					var order_con=getStr(ocon);
+					var slen=selfnum.length;
+					var self=plus.webview.currentWebview();
+     				//提交订单
+					$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.order&act=addOrder&format=json&jsoncallback=?",
+		    	        {
+		    		        user_id:userid,
+		    		        user_name:username,
+		    		        data:order_data
+		    	        },
+		    	        function(data){
+		                    if(data.code==1000){
+
+			                    	var ordernum=data.data; 		                   
+				                    	mui.openWindow({
+											url:"pay.html",
+											id:"pay",
+											styles: {
+												top: "0px", 
+												bottom: "0", 
+												popGesture:'none',
+												bounce:"none"
+											},
+											extras:{
+												onum:ordernum,
+												ocon:order_con
+											},
+											show: {
+												autoShow: true, 
+												aniShow: "pop-in",
+												duration: 250 
+											},
+											waiting: {
+												autoShow: false, 			   
+											}
+										});
+										mui.toast("订单提交成功");
+									for(var i=0;i<selfnum.length;i++){									
+				                    	plus.storage.removeItem("goodcid"+selfnum[i]);
+										plus.storage.removeItem("goodiurl"+selfnum[i]);
+										plus.storage.removeItem("goodcname"+selfnum[i]);
+										plus.storage.removeItem("goodprice"+selfnum[i]);								
+			                    	}
+			                    	setTimeout(function(){
+			                    		self.reload();
+			                    	},300);	
+								
+
+				        	}
+		                    else{
+		                    	mui.toast("订单提交失败");
+		                    }
+		    	        }
+		            );		
+				}
+				re=0;
+				$('#getyzm').removeAttr("disabled");
+			});	
+		}
+		else{
+			return;
+		}
+			
+		//删除购物车商品
+			mui('#goodshop').on('tap', '.mui-btn', function(event) {
+				if(re==1){return;}
+				else{
+					re=1;
+					var li = this.parentNode.parentNode;
+					var i=li.getAttribute("value");
+					var btnArray = ['确定', '取消'];
+					mui.confirm('确认删除该条视频？', '提示', btnArray, function(e) {
+						if(e.index == 0) {
+							li.parentNode.removeChild(li);
+							plus.storage.removeItem("goodcid"+i);
+							plus.storage.removeItem("goodiurl"+i);
+							plus.storage.removeItem("goodcname"+i);
+							plus.storage.removeItem("goodprice"+i);
+							checkcar();
+							//获取商品数量，设置显示数量
+							var check_num=$("input[name='checkbox']").length;
+							if(!check_num){
+								check_num=0;
+							}
+							var shouy=plus.webview.getLaunchWebview();
+							shouy.evalJS("checknum("+check_num+")");
+						} 
+						else {
+							mui.swipeoutClose(li);
+						}
+					});
+				}
+				setTimeout(function(){re=0;},200);
+			});			
+		});
+		
+		//全选
+		 function cli(){
+			    var collid = document.getElementById("checkall");
+			    var coll = document.getElementsByName("checkbox");
+			    var b=0,m=0;
+			    if(collid.checked){
+			        for(var i = 0; i < coll.length; i++)
+			            coll[i].checked = true;
+			    }
+			    else{
+			        for(var i = 0; i < coll.length; i++)
+			            coll[i].checked = false;
+			    }
+			    $("input[name='checkbox']").each(function(){
+					if($(this).is(':checked')==true){
+						b +=parseInt($(this).val());
+						m++;
+					}
+				});
+				if(m>0){
+					$('#torder').attr('disabled',false);
+				}
+			document.getElementById("allprice").innerHTML=b;
+			document.getElementById("gcount").innerHTML=m;
+  			}
+		 
+		function call(){
+			var a=0,m=0;
+			var coll = document.getElementsByName("checkbox");
+			$("input[name='checkbox']").each(function(){
+				if($(this).is(':checked')==true){
+					a +=parseInt($(this).val());
+					m++;
+				}
+			});
+			if(m>0){
+				$('#torder').attr('disabled',false);
+			}
+			document.getElementById("allprice").innerHTML=a;
+			document.getElementById("gcount").innerHTML=m;
+			if(m==coll.length){
+				document.getElementById("checkall").checked= true;
+			}
+			else{
+				document.getElementById("checkall").checked= false;
+			}
+		}
+		 
+	
+
+	</script>
+</body>
+</html>

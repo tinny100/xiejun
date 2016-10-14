@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="css/mui.min.css">		
+	</head>
+	<body>
+		<div id="slider" class="mui-slider mui-fullscreen" style="background-color: black;">
+			<div class="mui-slider-group">				
+				<div class="mui-slider-item">
+					<img src="images/appyd1.jpg" width="100%" height="100%">
+				</div>
+				
+				<div class="mui-slider-item">
+					<img src="images/appyd2.jpg" width="100%" height="100%">					
+				</div>
+				
+				<div class="mui-slider-item">
+					<img src="images/appyd3.jpg" width="100%" height="100%" id="close">
+				</div>			
+			</div>		
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script>
+		    mui.back = function() {};
+			mui.plusReady(function() {
+				if(mui.os.ios){
+					plus.navigator.setFullscreen(true);
+				}
+				plus.navigator.closeSplashscreen();				
+				var current=plus.webview.currentWebview();
+				current.setStyle({popGesture:"none"});
+			});
+			//立即体验按钮点击事件,这边点击的是整张图片
+			var re=0;
+			document.getElementById("close").addEventListener('tap', function(){
+				if(re==1){return;}
+				else{
+					re=1;
+					plus.storage.setItem("lauchFlag", "true");	
+					plus.navigator.setFullscreen(false);
+					plus.webview.currentWebview().close();					
+				}
+				setTimeout(function(){re=0;},200);
+			});
+
+			
+		</script>
+	</body>
+</html>

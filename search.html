@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<title></title>
+    <script language="javascript" src="js/jquery.min.js"></script>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<style type="text/css">
+    .search_head{box-shadow: none;}    
+    .fcff{color:white;}
+    .head{height: 45px;width:100%;position:fixed;top:44px;background-color: white;padding: 5px 0px 0px 10px;z-index:2;border-bottom: 1px solid #D9D9D9;}	
+    .head form{width:100%;}
+    .mui-input-row{width:97%;}
+    .keyword{width:92%;position: absolute;top:89px;margin-left: 4%;margin-top: 8px;}
+    .keyword .fl{display: -webkit-box;font-size: 14px;font-family: "微软雅黑";color: #337ab7;}
+    .keyword .fl .fl_left,.keyword .fl .fl_right,.keyword .fl .fl_center{-webkit-box-flex: 1;margin:5px 0px;width:33%;text-align: center;white-space: nowrap;overflow: hidden;}
+
+</style>
+<!--头部-->
+ <header class="mui-bar mui-bar-nav search_head">
+	<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+	<h1 class="mui-title fcff">课程搜索</h1>
+ </header>
+	<div class="head">
+		<form action="" method="post" onsubmit="subsearch();return false;">
+	        <div class="mui-input-row mui-search">     	
+				<input id="searchvalue" type="search" class="mui-input-clear mui-search" placeholder="输入你想搜索的视频">	     
+	        </div>
+        </form>
+	</div>
+		<div class="keyword">
+			<div class="fl">
+				<div class="fl_left">智慧谋略</div>
+				<div class="fl_center">战略运营</div>
+				<div class="fl_right">工具方法</div>
+			</div>
+			<div class="fl">
+				<div class="fl_left">招聘技能</div>
+				<div class="fl_center">培训技能</div>
+				<div class="fl_right">绩效实操</div>
+			</div>
+			<div class="fl">
+				<div class="fl_left">薪酬福利</div>
+				<div class="fl_center">员工激励</div>
+				<div class="fl_right"></div>
+			</div>
+		</div>
+
+
+<script type="text/javascript">
+	mui.init();
+	var re=0;
+	function subsearch(){
+		var searchvalue=document.getElementById("searchvalue").value;
+		mui.plusReady(function(){
+			document.getElementById("searchvalue").blur();//移除焦点
+			var searchinfo=plus.webview.create("search-info.html","search-info",{top:"89px",bottom:"0px"},{word:searchvalue});						
+			searchinfo.hide();
+			$(".keyword").remove();	
+			plus.webview.currentWebview().append(searchinfo);
+			setTimeout(function() {
+				plus.webview.show(searchinfo,"none",200);
+			},200);
+		});
+	}		   
+	mui.plusReady(function(){	
+			if(mui.os.ios){
+				//搜索输入框自动聚焦
+				var webView = plus.webview.currentWebview().nativeInstanceObject();
+		//		plus.webview.currentWebview().setStyle({scrollIndicator:'none'});//隐藏窗口的滚动条
+		        webView.plusCallMethod({"setKeyboardDisplayRequiresUserAction":false});
+		        
+		       
+			}
+			//关键字搜索
+			mui(".fl div").each(function(){
+					this.addEventListener('tap',function(){
+						if(re==1){return;}
+						else{
+							re=1;
+							document.getElementById("searchvalue").focus();
+							var searchkey=this.innerHTML;
+							document.getElementById("searchvalue").value=searchkey;
+							subsearch();
+						}
+						setTimeout(function(){re=0;},200);
+					});			
+			});	
+			
+			//检查网络是否已经连接
+			var network = true;
+			if (mui.os.plus) {
+				mui.plusReady(function() {
+					if (plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
+						network = false;
+						plus.nativeUI.toast("当前网络不给力，请检查你的网络连接!",{duration:"long"});
+					}
+				});
+			}
+			
+			setTimeout(function(){
+				 document.getElementById("searchvalue").focus();
+			},500);
+    })
+
+
+	
+</script>
+</body>
+</html>

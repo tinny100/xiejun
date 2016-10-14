@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <script src="js/jquery.min.js"></script>	
+    <script src="js/jquery.lazyload.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />	
+</head>
+<body>
+<style type="text/css">
+    ul{width: 100%;list-style: none;padding: 0;margin: 0;	}
+    li{width: 100%;margin-left: 0px;padding: 10px;}
+    .splb{display:-webkit-box;}
+    #header{box-shadow: none;}
+    #header button,#header h1{color:white;}
+    #sliderSegmentedControl{background-color: white;}
+    .mui-fullscreen{top:44px;height: auto;}
+    .video,.sp{width:50%;height:100px;-webkit-box-flex: 1;}
+    .name{display:inline-block;height:30%;width:100%;text-align: center;margin-top: 10%;}
+    .name span{font-size:14px;}
+    .builder{display:-webkit-box;height: 40%;margin-top: 10%;}
+    .builder_left,.builder_right{-webkit-box-flex: 1;text-align: center;}
+    .builder span{font-size:12px;}
+    .video img{height: 100px; width: 100%;}
+    .none{text-align:center;padding-top:100px;display: block;height: 100%;}
+    </style>
+	<header class="mui-bar mui-bar-nav" id="header">
+		<button type="button" class="mui-left mui-action-back mui-btn mui-btn-link mui-btn-nav mui-pull-left">
+			<span class="mui-icon mui-icon-left-nav"></span>
+		</button>
+		<h1 class="mui-center mui-title">我的课程</h1>
+	</header>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+		<div class="mui-scroll">
+			<ul class="spxq" id="mycourse"></ul>	
+		</div>
+	</div>
+
+   <script>
+    mui.init({
+			pullRefresh : {
+			    container:"#pullrefresh",
+			    up : {
+			      contentrefresh : "正在加载",
+			      contentnomore:'没有更多数据了',
+			      callback :pullupRefresh
+			    }
+			}
+		});
+//	mui('.mui-scroll-wrapper').scroll({bounce: false,indicators: true});
+	var m=1;
+	var pagenum=0;
+	function pullupRefresh() {
+		var userid = plus.storage.getItem("userid");
+		if(pagenum<=1){
+			mui('#pullrefresh').pullRefresh().disablePullupToRefresh();
+		}
+		else{
+			setTimeout(function() {
+				if(pagenum<=m){
+					mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+				}else{
+					m++;				
+					mycourse(m,userid);
+					mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+				}
+			}, 1500);
+		}
+	}
+	mui.plusReady(function(){
+	var w=plus.nativeUI.showWaiting("加载中...");
+	var userid = plus.storage.getItem("userid");
+	var t=setInterval(function(){
+		w.setTitle("加载中...");
+        mycourse(m,userid);
+		clearInterval(t);
+		w.close();
+	    },800);
+    }); 
+    
+
+	function mycourse(m,userid){
+		$.ajax({type: "get",
+			    dataType: "json",
+			    async:false,
+			    url:"http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			  	data:{
+			  			app : "mobile.course",
+			            act : "my_course",
+			            now_page :m,
+			            page_size :10,
+			            user_id : userid
+			  		},
+			    success: function(msg){
+			    	    var str="";
+			    	    var d=msg.data.total_num;
+			   	        pagenum =Math.ceil(d/10);
+					    if(d==0){
+					   		$(".spxq").append("<div class='none' style='font-size:16px;'><span>您还没有购买任何课程！</span></div>");
+					    }
+					    else{
+					  	    $.each(msg.data.list, function(i,item){								
+								str += "<li cid='"+item.c_id+"'cname='"+item.c_name+"' class='splb'><div class='video'><img class='lazy' src='"+item.c_img+".200x123.jpg'></div>";
+								str += "<div class='sp'><div class='name'><span>"+item.c_name+"</span></div><div class='builder'><div class='builder_left'><span>讲师："+item.teacher+"</span></div></div></div></li>";																	
+					        });	
+					        $("#mycourse").append(str);		
+					    }
+				}
+		});
+	}
+
+				//点击进入视频详情页
+				var re=0;
+				mui(".spxq").on('tap', 'li', function() {
+					if(re==1){return;}
+					else{
+						re=1;
+						var cid = $(this).attr("cid");
+						var cname=1;
+						mui.openWindow({
+						    url:"vdetail-info.html",
+						    id:"vdetail-info",
+						    styles:{
+						        top:"0",
+						        bottom:"0",
+						        popGesture:'none',
+								hardwareAccelerated:true				
+						    },
+						    extras:{
+						     c_id: cid,
+							 c_name: cname
+						    },
+						    createNew:false,
+						    show:{
+						      autoShow:true,
+						      aniShow:"pop-in",
+						      duration:250
+						    },
+						    waiting:{
+						      autoShow:false
+						    }
+						})
+					}
+					setTimeout(function(){re=0;},200);
+				});	
+
+</script>   
+</body>
+</html>

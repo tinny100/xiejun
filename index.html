@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<title></title>
+	<script src="js/mui.min.js"></script>
+	<script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.view.js"></script>
+    <script src="js/app.js"></script>
+    <link rel="stylesheet" href="css/iconfont.css">
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+    
+</head>
+<style type="text/css">
+	.footer a{text-decoration: none;}
+</style>
+<header class="mui-bar mui-bar-nav header">	
+	<h1 class="mui-title fcff">点播</h1>
+	<a id="icon"><div id="search"><span class="mui-icon mui-icon-search mui-pull-right fcff"></span></div></a>
+</header>
+
+<div class="footer">
+	<nav class="mui-bar mui-bar-tab">
+		<a class="mui-tab-item mui-active"  href="#" id="dibo">
+			<span class="mui-icon mui-icon-videocam"></span>
+			<span class="mui-tab-label">点播</span>
+		</a>
+		<a class="mui-tab-item" href="#">
+			<span class="mui-icon mui-icon-pengyouquan" id="aa"></span>
+			<span class="mui-tab-label">直播</span>
+		</a>
+		<a class="mui-tab-item" href="#">
+			<span class="mui-icon mui-icon-help"></span>
+			<span class="mui-tab-label">问答</span>
+		</a>
+		<a class="mui-tab-item" href="#">
+			<span class="mui-icon iconfont icon-gouwuche" id="goodcar"></span>			
+			<span class="mui-tab-label">购物车</span>
+		</a>
+		<a class="mui-tab-item" href="#">
+			<span class="mui-icon mui-icon-contact"></span>
+			<span class="mui-tab-label">我的</span>
+		</a>
+	</nav>
+</div>
+<script>
+	mui.init();
+	var re=0;
+	var subpages = ['dianbo.html', 'zhibo.html', 'wenda.html','shop.html', 'wode.html','wodeno.html'];
+	var subtit = ['点播', '在线直播', '疑难问答', '购物车','我的','我的'];
+	var subpage_style = {
+		top: '44px',
+		bottom: '50px',
+		popGesture:'none'
+	};	
+	mui.plusReady(function(){		
+		plus.screen.lockOrientation("portrait-primary");//只支持竖屏
+		//读取本地存储，检查是否为首次启动(在默认的manifest.json中需要进行配置)
+		var showGuide = plus.storage.getItem("lauchFlag");
+		if(showGuide){
+			//有值，说明已经显示过了，无需显示；
+			//关闭splash页面；
+			plus.navigator.closeSplashscreen();
+			plus.navigator.setFullscreen(false);}
+		else{
+			//显示启动导航
+			mui.openWindow({
+				id:'goin',
+				url:'goin.html',
+				show:{
+					aniShow:'none'
+					},
+				waiting:{
+					autoShow:false
+					}
+				});				
+			}
+
+		
+		
+		//分别显示4个主页面，默认显示第一个页面，其他隐藏		
+		var self = plus.webview.currentWebview();	
+		for(var i=0;i<6;i++)
+		{	
+			var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
+				if (i>0)
+				{
+					sub.hide();
+				}
+				else
+				{
+					sub.show();
+				}
+            self.append(sub);           
+		}
+
+		var osubtab = subpages[0];
+		var subtab = mui(".mui-tab-item").each(function(){			
+		this.addEventListener("tap",function(){//点击各个页面的跳转以及标题的显示
+				var index = $(".mui-bar-tab .mui-tab-item").index(this);
+				var csubtab = subpages[index];
+				var tsubtab = subpages[index+1];
+					if(osubtab!=csubtab){
+						if(index>=0 && index<=3){
+							if(index==0 || index==1 || index==3){
+							    if(index==3 && !plus.storage.getItem("username")){
+							    	$("#mokuai").remove();
+									document.getElementById("icon").innerHTML="<div id='search'><span class='mui-icon mui-icon-search mui-pull-right fcff'></span></div>";
+									$(".mui-title").html(subtit[index]);
+									plus.webview.show(csubtab);
+									plus.webview.hide(osubtab);
+									osubtab = csubtab;	
+							    	var btnArray = ['确定', '取消'];
+									mui.confirm('登录后才能查看购物车中的视频！', '提示', btnArray, function(e) {
+										if(e.index == 0){
+											mui.openWindow({
+												url:"login.html",
+												id:"login",
+												styles:{
+													top:"0",
+													bottom:"0",
+													popGesture:'none'
+												},
+												extras:{
+													logid:6											
+												},
+												createNew:false,
+												show:{
+													autoShow:true,   
+													aniShow:"slide-in-bottom",
+													duration:250
+												},
+												waiting:{
+													autoShow:false,				   
+												}										
+											});
+										}
+										else{}
+									});
+							    	
+									
+								}
+							    else{
+							    	$("#mokuai").remove();
+									document.getElementById("icon").innerHTML="<div id='search'><span class='mui-icon mui-icon-search mui-pull-right fcff'></span></div>";
+							    	$(".mui-title").html(subtit[index]);
+									plus.webview.show(csubtab);
+									plus.webview.hide(osubtab);
+									osubtab = csubtab;	
+							    }
+							}
+						    else{
+							    $("#mokuai").remove();
+							    document.getElementById("icon").innerHTML="<div id='tiwen' class='mui-pull-right' style='text-align: center;'><div class='mui-icon mui-icon-compose' style='margin-top: -7px;display: block;'></div><div style='margin-top: -12px;color:white;font-size:10px;'>提问</div></div>";
+							    $(".header").append("<span id='mokuai' class='mui-icon mui-action-menu mui-icon-bars mui-pull-left fcff'></span>")
+						        document.getElementById('mokuai').addEventListener('tap', function(){
+						            plus.webview.getWebviewById('wenda.html').evalJS('mui("#topPopover").popover("toggle");');					           				     
+	                            });
+						   		document.getElementById("tiwen").addEventListener("tap",function(){
+								    if(re==1){return;}
+									else{
+										re=1;
+									    if(plus.storage.getItem("username")){
+									   		mui.openWindow({
+												url: "tiwen.html",
+												id:"tiwen",
+												styles: {
+													top: "0", 
+													bottom: "0", 
+												},
+												createNew: false, 
+												show: {
+													autoShow: true, 
+													aniShow: "pop-in", 
+													duration: 250 
+												},
+												waiting: {
+													autoShow: false, 
+												}
+											})
+									   	}
+									   	else{
+									   		plus.nativeUI.alert("要先登录才能提问哦！",function(e){ 
+									        	if(e.index==0){		        			
+										        	mui.openWindow({
+														url:"login.html",
+														id:"login",
+														styles:{
+															top:"0",
+															bottom:"0",
+															popGesture:'none'
+														},
+														extras:{
+															logid:3
+														},
+														createNew:false,
+														show:{
+															autoShow:true,
+															aniShow:"pop-in",
+															duration:200
+														},
+														waiting:{
+															autoShow:false,				   
+														}
+													});
+												}        		
+									        },"提示","确定"); 
+									   	}
+									}
+									setTimeout(function(){re=0;},200);
+						   		});	
+						   		$(".mui-title").html(subtit[index]);
+								plus.webview.show(csubtab);
+								plus.webview.hide(osubtab);
+								osubtab = csubtab;	
+							}
+					
+			        }
+					else{
+						if(index==4 && plus.storage.getItem("username")){//判断是否登录过，有缓存
+							$("#mokuai").remove();
+							if(mui.os.android){
+								document.getElementById("icon").innerHTML="<div id='setting'><span class='mui-icon mui-icon-gear mui-pull-right fcff'></span></div>";
+							}
+							if(mui.os.ios){
+								document.getElementById("icon").innerHTML="";
+							}
+							$(".mui-title").html(subtit[5]);
+                            plus.webview.show(tsubtab);
+                            plus.webview.hide(osubtab);
+                            osubtab = csubtab;}
+						else{
+							$("#mokuai").remove();
+							if(mui.os.android){
+								document.getElementById("icon").innerHTML="<div id='setting'><span class='mui-icon mui-icon-gear mui-pull-right fcff'></span></div>";
+							}
+							if(mui.os.ios){
+								document.getElementById("icon").innerHTML="";
+							}
+							$(".mui-title").html(subtit[5]);
+							plus.webview.show(csubtab);
+							plus.webview.hide(osubtab);
+							osubtab = csubtab;}		
+							if(document.getElementById("setting")){
+								document.getElementById("setting").addEventListener('tap', function(){	//点击跳转设置页面		
+									if(re==1){return;}
+									else{
+										re=1;
+										mui.openWindow({
+											url: "setting.html",
+											id:"setting",
+											styles: {
+												top: "0", 
+												bottom: "0", 
+											},
+											createNew: false, 
+											show: {
+												autoShow: true, 
+												aniShow: "pop-in", 
+												duration: 250 
+											},
+											waiting: {
+												autoShow: false, 
+											}
+										})
+									}
+									setTimeout(function(){re=0;},200);
+								});
+							}
+						}
+					var dsearch=document.getElementById("search");
+						if(dsearch){
+							document.getElementById("search").addEventListener('tap', function(){			
+								if(re==1){return;}
+								else{
+									re=1;
+									mui.openWindow({
+										url: "search.html",
+										id: "search",
+										styles: {
+											top: "0", 
+											bottom: "0", 
+										},
+										createNew: false, 
+										show: {
+											autoShow: true, 
+											aniShow: "pop-in", 
+											duration: 250 
+										},
+										waiting: {
+											autoShow: false, 
+										}
+									})
+								}
+								setTimeout(function(){re=0;},200);
+							});
+						}
+					}
+					
+				});
+				
+			});
+			
+			document.addEventListener("resume",function(){//监听后台切换到前台事件
+				checknetwork();
+			});
+		});		  
+					
+
+			//处理逻辑：1秒内，连续两次按返回键，则退出应用；
+			var first = null;
+			mui.back = function() {
+				//首次按键，提示‘再按一次退出应用’
+				if (!first) {
+					first = new Date().getTime();
+					mui.toast('再按一次退出应用');
+					setTimeout(function() {
+						first = null;
+					}, 1000);
+				} else {
+					if (new Date().getTime() - first < 1000) {
+						plus.runtime.quit();
+					}
+				}				
+			};
+	
+	    function checknetwork(){
+			var network = true;
+			if (mui.os.plus) {
+				mui.plusReady(function() {
+					if (plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
+						network = false;
+						plus.nativeUI.toast("当前网络不给力，请检查你的网络连接!",{duration:"long"});
+					}
+					if (plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_CELL2G) {
+						network = false;
+						plus.nativeUI.toast("当前网速较慢，建议在WIFI或4G网络下运行！",{duration:"short"});
+					}					
+				});
+			}
+		}
+	    checknetwork();
+		
+        //点击跳转搜索页面
+		document.getElementById("search").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				mui.openWindow({
+					url: "search.html",
+					id: "search",
+					styles: {
+						top: "0", 
+						bottom: "0", 
+					},
+					createNew: false, 
+					show: {
+						autoShow: true, 
+						aniShow: "pop-in", 
+						duration: 250 
+					},
+					waiting: {
+						autoShow: false, 
+					}
+				});
+			}
+			setTimeout(function(){re=0;},200);
+		});
+		
+		
+		//购物车数量
+		function checknum(m){
+			if(m>0){
+				$("#goodcar").append("<span class='mui-badge'></span>");	
+				$(".mui-badge").html(m);				
+			}
+			else{
+				var mbage=$(".mui-badge");
+				if(mbage){
+					mbage.remove();
+				}
+			}
+		}
+		
+</script>
+</body>
+</html>

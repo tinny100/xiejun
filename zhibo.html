@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script language="javascript" src="js/jquery.min.js"></script>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<style type="text/css">
+			#prompt{font-size: 14px;display: block;}
+		</style>
+		<div class="item-content">
+			<div class="item-tit">
+				<div class="mc">正在直播</div>
+			</div>
+			<ul class="mui-table-view mui-grid-view st1" id="now"></ul>
+		</div>
+		<div class="bgcc clearfix pt10"></div>
+		<div class="item-content">
+			<div class="item-tit">
+				<div class="mc">即将直播</div>
+			</div>
+			<ul class="mui-table-view mui-grid-view st1" id="will"></ul>
+		</div>
+		<script type="text/javascript">
+		    mui.init();
+			function jiazai(act, showlist) {
+				$.ajax({
+					type: "get",
+					dataType: "json",
+					async: false,
+					url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+					data: {
+						app: "mobile.course",
+						act: act,
+						cur_page: 1,
+						page_size: 20
+					},
+					success: function(msg) {
+						var len=msg.data.list.length;
+						var str = "";
+						if(len== 0){							
+							str += "<li class='mui-table-view-cell' id='prompt'>暂无直播,请点播节目观看！！</li>";
+							$(showlist).append(str);
+						}
+						else{							
+						$.each(msg.data.list, function(i, item) {													
+							str += "<li class='mui-table-view-cell mui-media mui-col-xs-6'><a cid='" + item.c_id + "' cname='" + item.c_name + "'>";
+							str += "<img src='" + item.img + "'  class='mui-media-object' />";
+							str += "<div class='mui-media-body'><div>" + item.c_name + "</div><div>讲师：" + item.teacher + " " + item.num_learner + "人在学</div></div>";
+							str += "</a></li>";							
+						});
+						$(showlist).append(str);
+						}
+					}
+				});
+			}
+			var now = document.body.querySelector("#now");
+			var actnow = "liveing";
+			jiazai(actnow, now);//加载正在直播
+			var will = document.body.querySelector("#will");
+			var actwill = "willlive";//加载即将直播
+			jiazai(actwill, will);	
+			 
+			 
+			//处理视频点击事件	
+			var re=0;
+			mui(".mui-table-view").on('tap', 'a', function() {
+				if(re==1){return;}
+				else{
+					re=1;
+					var cid = $(this).attr("cid");
+					var cname = $(this).attr("cname");
+					mui.openWindow({
+					    url:"vdetail-zhibo.html",
+					    id:"vdetail-zhibo",
+					    styles:{
+					        top:"0",
+					        bottom:"0",
+							popGesture:'none',
+							hardwareAccelerated:true						    
+					    },
+					    extras:{
+					     c_id: cid,
+						 c_name: cname
+					    },
+					    createNew:false,
+					    show:{
+					      autoShow:true,
+					      aniShow:"pop-in",
+					      duration:250
+					    },
+					    waiting:{
+					      autoShow:false,		   
+					    }
+					})
+				}
+				setTimeout(function(){re=0;},200)
+			});			
+			
+		</script>
+	</body>
+
+</html>

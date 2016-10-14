@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>  
+    <link href="css/mbbest.css" rel="stylesheet"/>  
+    <script language="javascript" src="js/jquery.min.js"></script>   
+</head>
+<body>
+	<style type="text/css">
+		.mui-content .mui-fullscreen{top: 44px;height: auto;}
+		.mui-pull-bottom-tips {text-align:center;background-color: #efeff4;font-size: 15px;line-height: 40px;color: #777;}
+		.order_all{border-top:1px solid #c8c7cc;border-bottom: 1px solid #c8c7cc;background-color: white;margin-top: 10px;}
+		.order_all .order_num{font-size:12px;height: 40px;line-height:40px;margin: 0px 10px;border-bottom: 1px solid #EEEEEE;}
+		.order_all .order_num .o_time{text-align: right;}
+		.order_all .order_info{padding-top:8px;padding-bottom: 8px;margin: 0px 10px 0px 10px;border-bottom: 1px solid #EEEEEE;}
+		.order_all .order_info .video_img{width:45%;}
+		.order_all .order_info .video_img img{width:100%;height:80px;}
+		.order_all .order_info .video_info{width:55%;text-align: center;}
+		.order_all .order_info .video_info .video_name{padding-top: 15px;}		
+		.order_all .all_price{font-size:12px;height: 40px;line-height:40px;margin: 0px 10px;border-bottom: 1px solid #EEEEEE;text-align: right;}
+		.order_all .order_operate{font-size:12px;height: 40px;line-height:40px;margin: 0px 10px;text-align: right;}
+		.order_all .order_operate button{height: 26px;vertical-align:middle; line-height:14px;font-size:12px;}
+	</style>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <h1 class="mui-title" style="color: white;">我的订单</h1>  
+	</header>
+	<div class="mui-content">
+		<div id="slider" class="mui-slider mui-fullscreen">
+			<div id="sliderSegmentedControl" class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+				<a class="mui-control-item mui-active" href="#item1mobile">全部</a>
+				<a class="mui-control-item" href="#item2mobile">待支付</a>
+				<a class="mui-control-item" href="#item3mobile">部分支付</a>
+				<a class="mui-control-item" href="#item4mobile">已支付</a>
+				<a class="mui-control-item" href="#item5mobile">已取消</a>			
+			</div>
+			<div id="sliderProgressBar" class="mui-slider-progress-bar mui-col-xs-7"></div>
+			<div class="mui-slider-group">
+				<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+					<div id="scroll1" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul class="order_show1">
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="item2mobile" class="mui-slider-item mui-control-content">
+					<div id="scroll2" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul class="order_show2"></ul>
+						</div>
+					</div>
+				</div>
+				<div id="item3mobile" class="mui-slider-item mui-control-content">
+					<div id="scroll3" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul class="order_show3">
+								
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="item4mobile" class="mui-slider-item mui-control-content">
+					<div id="scroll4" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul class="order_show4"></ul>
+						</div>
+					</div>
+				</div>
+				<div id="item5mobile" class="mui-slider-item mui-control-content">
+					<div id="scroll5" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul class="order_show5"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="js/mui.pullToRefresh.js"></script>
+	<script src="js/mui.pullToRefresh.material.js"></script>
+	<script type="text/javascript">
+		mui.init();
+		var deceleration = mui.os.ios?0.003:0.0009;						
+		mui('.mui-scroll-wrapper').scroll({bounce: false,indicators: true,deceleration:deceleration});
+
+		var order_show1=$(".order_show1");
+		var order_show2=$(".order_show2");
+		var order_show3=$(".order_show3");
+		var order_show4=$(".order_show4");
+		var order_show5=$(".order_show5");
+		var all="";
+		var m=1,y=1,x=1,z=1,w=1,pagenum=[];
+		var re=0;
+						
+		mui.plusReady(function(){
+			var userid=plus.storage.getItem("userid");
+			getmyorder(userid,all,order_show1,m,10,0);//全部
+			getmyorder(userid,2,order_show2,m,10,1);//待支付
+			getmyorder(userid,4,order_show3,m,10,2);//部分支付			
+			getmyorder(userid,3,order_show4,m,10,3);//已支付
+			getmyorder(userid,1,order_show5,m,10,4);//已取消
+			//区域滚动上拉加载			
+			mui.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function(index,pullRefreshEl){
+				mui(pullRefreshEl).pullToRefresh({
+						up: {
+								callback: function(){
+									var self=this;						
+									setTimeout(function(){										
+										if(index==0){
+											setTimeout(function(){
+											    m++;
+										        getmyorder(userid,all,order_show1,m,10,0);
+											    if(m>=pagenum[0]){
+	                                                self.endPullUpToRefresh(true);
+											    }
+											},300);												
+									    }
+										if(index==1){
+											setTimeout(function(){
+											    y++;
+											    getmyorder(userid,2,order_show2,y,10,1);											
+											    if(y>=pagenum[1]){
+	                                                self.endPullUpToRefresh(true);
+											    }																	                                                                 	 
+											}, 300);
+										}
+										if(index==2){
+											setTimeout(function(){
+											    x++;
+											    getmyorder(userid,4,order_show3,x,10,2);											
+											    if(x>=pagenum[2]){
+	                                                self.endPullUpToRefresh(true);
+											    }																	                                                                 	 
+											}, 300);
+										}
+										if(index==3){
+											setTimeout(function(){
+											    z++;
+											    getmyorder(userid,3,order_show4,z,10,3);											
+											    if(z>=pagenum[3]){
+	                                                self.endPullUpToRefresh(true);
+											    }																	                                                                 	 
+											}, 300);
+										}
+										if(index==4){
+											setTimeout(function(){
+											    w++;
+											    getmyorder(userid,1,order_show5,w,10,4);											
+											    if(w>=pagenum[4]){
+	                                                self.endPullUpToRefresh(true);
+											    }																	                                                                 	 
+											}, 300);
+										}
+									self.endPullUpToRefresh();
+								},300);								    
+							}
+						}
+					});
+				});	
+				
+			var paysuc=plus.webview.getWebviewById("paysuc"); 
+			if(paysuc){
+				paysuc.close("none");
+			}
+					
+		    var pay=plus.webview.getWebviewById("pay");  
+			if(pay){
+					pay.close("none");
+			}
+			})
+				//获取订单数据
+				function getmyorder(a, b, c, m, n, i) {
+					$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.order&act=get_my_order&format=json&jsoncallback=?", {
+							now_page: m,
+							page_size: n,
+							user_id: a,
+							status: b
+						},
+						function(msg) {
+							var str = "";
+							var order_num = msg.data.total_num;
+							if (order_num <= 0) {
+								c.append("<li class='noorder' style='margin-top: 20px;text-align: center;'>该分类下暂时没有订单!</li>");
+							} else {
+								pagenum[i] = Math.ceil(msg.data.total_num / 10);
+								$.each(msg.data.list, function(i, item) {
+									var status = item.status;
+									var goodcount = 0;
+									var order_id = item.order_id;
+									var order_sn_main = item.order_sn_main;
+									var pay_status = item.pay_status;
+									str += "<li class='order_all'>";
+									str += "<div class='wbox order_num'><div class='wbox-1 o_num'>订单号:" + item.order_sn_main + "</div><div class='wbox-1 o_time'>" + item.create_time + "</div></div>";
+									$.each(item.goods, function(i, item) {
+										goodcount++;
+										str += "<div class='wbox order_info'><div class='video_img wbox-1'><img cid='" + item.c_id + "' src='" + item.c_img + "' ></div><div class='video_info wbox-1'><div class='video_name'><span style='color:#007AFF;'>" + item.c_name + "</span></div><div class='t_name'><span>讲师:" + item.teacher + "</span></div></div></div>";
+									})
+									if(b==3 || (status == 0 && pay_status == 1)){
+										html="(已支付)";
+									}
+									else{
+										html="(未支付)";
+									}								
+									str += "<div class='all_price'>共<span style='color:red;'>" + goodcount + "</span>部视频<span style='margin-left: 10px;'>总金额:</span><span style='color: red;'>￥" + item.goods_amount + "</span><span style='color:#C0C0C0;'>"+html+"</span></div>";
+									
+									if (status == 1) {
+										str += "<div class='order_operate'><span style='color:#C0C0C0;'>订单已取消</span></div>";
+									}
+									if (status == 0 && pay_status == 0) {
+										if(mui.os.android){
+											str += "<div class='order_operate'><button type='button' id='cancelorder' value='"+item.order_sn_main+"' class='mui-btn mui-btn-blue mui-btn-outlined' style='margin-right:5px;' onclick='cancelorder(this.id);'>取消订单</button><button type='button' id='payorder' value='" + order_id + "' goodcount='" + goodcount + "' ordersn='" + order_sn_main + "' class='mui-btn mui-btn-blue mui-btn-outlined'>支付订单</button></div>";
+										}
+										if(mui.os.ios){
+											str += "<div class='order_operate'><button type='button' id='cancelorder' value='"+item.order_sn_main+"' class='mui-btn mui-btn-blue mui-btn-outlined' style='margin-right:5px;' onclick='cancelorder(this.id);'>取消订单</button></div>";
+										}
+									}
+									if (status == 0 && pay_status == 1) {
+				                        str += "<div class='order_operate'><span style='color:#C0C0C0;'>订单已支付</span></div>";
+									}
+									str += "</li>";
+								})
+								c.append(str);
+				
+				
+								//打开视频详情
+								var good_img = c.find(".video_img img");
+								good_img.click(function() {
+									if(re==1){return;}
+									else{
+										re=1;
+										var cid = $(this).attr("cid");
+										mui.openWindow({
+											url: 'vdetail-info.html',
+											id: 'vdetail-info',
+											styles: {
+												top: '0',
+												bottom: '0',
+												popGesture:'none',
+												hardwareAccelerated:true	
+											},
+											extras: {
+												c_id: cid
+											},
+											show: {
+												autoShow: true,
+												aniShow: "pop-in",
+												duration: 250
+											},
+											waiting: {
+												autoShow: false
+											}
+										});
+									}
+									setTimeout(function(){re=0;},200);
+								});
+				
+								//点击支付订单
+								var payorder = c.find(".order_operate #payorder");
+								payorder.click(function() {
+									if(re==1){return;}
+									else{
+										re=1;
+										$("#payorder").attr("disabled","disabled");
+										var order_id = this.getAttribute("value");
+										var goodcount = this.getAttribute("goodcount");
+										$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.order&act=get_my_order&format=json&jsoncallback=?", {
+												now_page: m,
+												page_size: n,
+												user_id: a,
+												status: b
+											},
+											function(msg) {
+												$.each(msg.data.list, function(i, item) {
+													var ocon = new Array(); //定义一个二维数组存放视频信息
+													for (var k = 0; k < goodcount; k++) {
+														ocon[k] = new Array();
+														for (var j = 0; j < 2; j++) {
+															ocon[k][j] = "";
+														}
+													}
+													var orderid = item.order_id;
+													if (orderid == order_id) {
+														var ordernum = item.order_sn_main;
+														$.each(item.goods, function(i, item) {
+															var cid = item.c_id;
+															$.ajax({
+																type: "get",
+																dataType: "json",
+																async: false,
+																url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+																data: {
+																	app: "mobile.course",
+																	act: "info",
+																	c_id: cid
+																},
+																success: function(data) {
+																	var oname = data.data.c_name;
+																	var oprice = data.data.price;
+																	ocon[i][0] = '"' + oname + '"';
+																	ocon[i][1] = '"' + oprice + '"';
+																	var newcount = goodcount - 1;
+																	setTimeout(function() {
+																		if (i == newcount) {
+																			var order_con = getStr(ocon);
+																			mui.openWindow({
+																				url: "pay.html",
+																				id: "pay",
+																				styles: {
+																					top: "0px",
+																					bottom: "0",
+																					popGesture: 'none',
+																					bounce: "none"
+																				},
+																				extras: {
+																					onum: ordernum,
+																					ocon: order_con
+																				},
+																				show: {
+																					autoShow: true,
+																					aniShow: "pop-in",
+																					duration: 250
+																				},
+																				waiting: {
+																					autoShow: true
+																				}
+																			});
+					
+																		}
+																	}, 200)
+																}
+															});
+														});
+													}
+												})
+											}
+										);
+									}
+									setTimeout(function(){re=0;
+									$('#payorder').removeAttr("disabled");},300);
+								});
+								
+															
+							}
+						}
+					);				
+				}
+				
+				//数组改为字符串
+				function getStr(objarr) {　　
+					var typeNO = objarr.length;　
+					var tree ="[";
+				 　　for (var i = 0 ;i < typeNO ; i++){
+				   　　　tree += "[";
+				   　　　tree +=objarr[i][0]+",";
+				   　　　tree +=objarr[i][1];
+				  　　　 tree += "]";
+				  　　　 if(i<typeNO-1){
+				    　　 　　tree+=",";
+				 　　　  }
+				  　 }
+				  　 tree+="]";
+				  　 return tree;
+				}
+				
+		    function cancelorder(id){
+		    	if(re==1){return;}
+		    	else{
+		    		re=1;
+			    	var ordersn = document.getElementById(id).value;
+					var userid=plus.storage.getItem("userid");
+					$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.order&act=cancel_order&format=json&jsoncallback=?", 
+						{											
+							user_id: userid,
+							order_no: ordersn
+						},
+						function(msg) {
+							if(msg.code==1000){
+								mui.toast("订单取消成功");
+								$(".order_show1 li").remove();
+								$(".order_show2 li").remove();
+								$(".order_show3 li").remove();
+								$(".order_show4 li").remove();
+								$(".order_show5 li").remove();
+				                setTimeout(function(){
+				                	getmyorder(userid,all,order_show1,m,10,0);//全部
+				                	getmyorder(userid,2,order_show2,1,10,1);//待支付
+				                	getmyorder(userid,4,order_show3,m,10,2);//部分支付
+				                	getmyorder(userid,3,order_show4,m,10,3);//已支付
+				                	getmyorder(userid,1,order_show5,m,10,4);//已取消
+				                },200)
+							}
+							else{
+								mui.toast("订单已取消");
+							}
+						});
+					}
+		    	setTimeout(function(){re=0;},200);
+		    }
+					
+	</script>
+</body>
+</html>

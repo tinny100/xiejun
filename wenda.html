@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script language="javascript" src="js/jquery.min.js"></script>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<style type="text/css">
+			#slider {height: auto;}
+			.mui-pull-bottom-tips {text-align:center;background-color: #efeff4;font-size: 15px;line-height: 40px;color: #777;}
+		    #topPopover {position: fixed;top: 16px;left: 6px;}
+			#topPopover .mui-popover-arrow {left: auto;left: 6px;}
+			.mui-popover {height: 215px;width:50%;}
+		</style>
+		<div id="topPopover" class="mui-popover">
+			<div class="mui-popover-arrow"></div>
+			<div class="mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<ul class="mui-table-view">	
+						<li class='mui-table-view-cell'><a href='#' q_id='allanswer'>全部问答</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="mui-content">
+			<div class="sw1">
+				<img src="images/wdimg.jpg" width="100%" class="dsb" id="img" />
+			</div>
+			<div id="slider" class="mui-slider mui-fullscreen">
+				<div id="sliderSegmentedControl" class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<a class="mui-control-item mui-active" href="#item1mobile" id="wenda_fl">
+					      全部问答	
+					</a>
+					<a class="mui-control-item" href="#item2mobile">
+					      精华问答
+					</a>
+				</div>
+				<div id="sliderProgressBar" class="mui-slider-progress-bar mui-col-xs-6"></div>
+				<div class="mui-slider-group">
+					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+						<div id="scroll1" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<ul class="wenda-list ta-l" id="all"></ul>
+							</div>
+						</div>
+					</div>
+					<div id="item2mobile" class="mui-slider-item mui-control-content">
+						<div id="scroll2" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<ul class="wenda-list ta-l" id="jinhua" ></ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+            mui.init();			
+			var deceleration = mui.os.ios?0.003:0.0009;						
+			mui('.mui-scroll-wrapper').scroll({bounce: false,indicators: true,deceleration:deceleration});			
+			var m=1,n=20,a="",b,c=1;
+			var x=1,y=1;z=1;
+			var pagenum = 0;
+			var pagenum2;
+			var p_num=0;
+			var type;
+			var qtype_id;
+		    //加载全部问答
+			function jiazai(m, n, a, b, c) {
+				$.ajax({
+					type: "get",
+					dataType: "json",
+					async: false,
+					url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+					data: {
+						app: "mobile.question",
+						act: "getList",
+						cur_page: m,
+						page_size: n,
+						qtype: a,
+						recommend: b
+					},
+					success: function(msg) {
+						pagenum = Math.ceil(msg.data.total_num/n);
+						var str = "";
+						$.each(msg.data.list, function(i, item){
+							var head_img = "";
+							if (item.head_url == null) {
+								head_img = "http://statics.chinaxiejun.com/image/default_head.jpg";
+							} else {
+								head_img = "http://img.chinaxiejun.com/" + item.head_url + ".60x60.jpg";
+							}
+							var nei = item.desc;
+							nei = nei.replace(/<[^>]+>/g, "");
+							nei = nei.replace(/(^\s*)|(\s*$)/g, '');
+							nei = nei.replace(/&nbsp;/ig, "");
+							str += "<li><div class='wbox'>";
+							str += "<div class='l'><img src='" + head_img + "' class='p' /></div>";
+							str += "<div class='r'><div class='t'><div class='fl'>" + item.nick_name + "</div><div class='fr'>" + item.create_time + "</div></div>";
+							str += "<div class='t1' q_id='" + item.q_id + "' id='desc' style='text-indent:2em;'>" + nei + "</div></div></div>";
+							str += "<div class='b'><span>来自【" + item.qtype_name + "】</span><span q_id='" + item.q_id + "' id='huifu'>回复("+item.answer_num+")</span></div></li>";													    
+						});	
+						    $(c).append(str);
+					}
+				});
+			}
+			//加载精华问答
+			function jiazaijinhua(m, n, a, b, c) {
+				$.ajax({
+					type: "get",
+					dataType: "json",
+					async: false,
+					url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+					data: {
+						app: "mobile.question",
+						act: "getList",
+						cur_page: m,
+						page_size: n,
+						qtype: a,
+						recommend: b
+					},
+					success: function(msg) {
+						pagenum2 = Math.ceil(msg.data.total_num/n);	
+						var str="";
+						$.each(msg.data.list, function(i, item){							
+							var head_img = "";
+							if (item.head_url == null) {
+								head_img = "http://statics.chinaxiejun.com/image/default_head.jpg";
+							} else {
+								head_img = "http://img.chinaxiejun.com/" + item.head_url + ".60x60.jpg";
+							}
+							var mei = item.desc;
+							mei = mei.replace(/<[^>]+>/g, "");
+							mei = mei.replace(/(^\s*)|(\s*$)/g, '');
+							mei = mei.replace(/&nbsp;/ig, "");
+							str += "<li><div class='wbox'>";
+							str += "<div class='l'><img src='" + head_img + "' class='p' /></div>";
+							str += "<div class='r'><div class='t'><div class='fl'>" + item.nick_name + "</div><div class='fr'>" + item.create_time + "</div></div>";
+							str += "<div class='t1' q_id='" + item.q_id + "' id='desc' style='text-indent:2em;'>" + mei + "</div></div></div>";
+							str += "<div class='b'><span>来自【" + item.qtype_name + "】</span><span q_id='" + item.q_id + "' id='huifu'>回复("+item.answer_num+")</span></div></li>";													    
+						});	
+						$(c).append(str);
+					}
+				});
+			}
+			
+			//获取分类问答
+			function getflwd(m,n,qtype_id){
+				$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.question&act=getList&format=json&jsoncallback=?",
+					{
+						cur_page:m,
+						page_size:n,
+						qtype:qtype_id,
+						recommend:0
+					},
+					function(msg){
+						var str="";
+	                    p_num = Math.ceil(msg.data.total_num/n);
+	                    if(msg.data.total_num==0){
+	                    	$("#all").append("<li class='mui-table-view-cell' style='text-align: center;'>该模块下暂时没有问答！</li>")}
+						$.each(msg.data.list, function(i,item){							
+							var head_img="";
+							if(item.head_url==null){
+								head_img="http://statics.chinaxiejun.com/image/default_head.jpg";			
+							}
+							else{
+								head_img="http://img.chinaxiejun.com/"+item.head_url+".60x60.jpg";}
+								var nei=item.desc;
+								nei = nei.replace(/<[^>]+>/g,"");
+								nei = nei.replace(/(^\s*)|(\s*$)/g, ''); 
+	                            nei = nei.replace(/&nbsp;/ig, "");                               
+								str +="<li><div class='wbox'>";
+								str += "<div class='l'><img src='"+head_img+"' class='p' /></div>";
+								str += "<div class='r'><div class='t'><div class='fl'>"+item.nick_name+"</div><div class='fr'>"+item.create_time+"</div></div>";
+								str +="<div class='t1' q_id='"+item.q_id+"' id='desc' style='text-indent:2em;'>"+nei+"</div></div></div>";
+								str +="<div class='b'><span>来自【"+item.qtype_name+"】</span><span q_id='" + item.q_id + "' id='huifu'>回复("+item.answer_num+")</span></div></li>";								
+						});
+						$("#all").append(str);
+					}
+				);
+			}
+
+            window.onload = function() {
+		        document.getElementById("slider").style.top = document.getElementById("img").offsetHeight+ "px";
+			        setTimeout(function(){
+			        	type=1;
+				        var all=document.body.querySelector("#all");     
+						jiazai(m,n,a,0,all);
+					    var jinhua=document.body.querySelector("#jinhua");
+					    jiazaijinhua(m,n,a,1,jinhua);
+					    
+					    //获取问答分类
+						$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.question&act=get_category&format=json&jsoncallback=?",
+							{
+								block_id:1
+							},
+							function(msg){	
+								var str="";
+								$.each(msg.data,function(i,item){									
+									str +="<li class='mui-table-view-cell'><a href='#' q_id="+item.qtype_id+">"+item.qtype_name+"</a></li>";									
+								});
+								$(".mui-table-view").append(str);
+							}
+						);						
+			            //点击菜单中分类加载相应的数据
+			            var re=0;
+						mui(".mui-popover").on("tap","li>a",function(){
+							if(re==1){return;}
+							else{
+								re==1;								
+								type=0;x=1;y=1;
+								var wd=this.innerHTML;
+								document.getElementById("wenda_fl").innerHTML=wd;							
+								$("#scroll1 li").remove();							
+	//							$("#scroll1 .mui-pull-bottom-tips").remove();
+	//							$("#scroll1 .mui-scroll").append("<div class='mui-pull-bottom-tips'><div class='mui-pull-bottom-wrapper'><span class='mui-pull-loading'>上拉显示更多</span></div></div>")
+								mui(".mui-popover").popover('hide');
+								qtype_id=this.getAttribute("q_id");
+								if(qtype_id=="allanswer"){
+									setTimeout(function(){								                    
+					                    jiazai(x,n,a,0,all);				                   			                   	                    
+									},300);
+								}
+								else{										
+									setTimeout(function(){													                    
+					                    getflwd(1,10,qtype_id);				                  				                   
+									},300);
+								}
+	                            mui('#scroll1').scroll().refresh();
+								mui('#scroll1').scroll().scrollTo(0,0);
+							}
+							setTimeout(function(){re=0},200);	
+						})
+			        },300);
+			}
+		</script>
+		<script src="js/mui.pullToRefresh.js"></script>
+		<script src="js/mui.pullToRefresh.material.js"></script>
+		<script type="text/javascript">
+			
+			mui.plusReady(function(){
+				var re=0;
+				mui(".wenda-list").on("tap","#huifu",function(){
+					if(re==1){return;}
+					else{
+						re=1;
+						var q_id=this.getAttribute("q_id");
+						if(plus.storage.getItem("userid")){
+							mui.openWindow({
+								url:"huifu.html",
+								id:"huifu",
+								styles:{
+									top:"0",
+									bottom:"0",
+									popGesture:'none'
+							    },
+							    extras:{
+									q_id:q_id,
+									parent_id:0,
+									xianshi:"1"
+								},
+								createNew:false,
+								show:{
+									autoShow:true,
+									aniShow:"pop-in",
+									duration:250
+								},
+								waiting:{
+									autoShow:false,				   
+								}
+							});
+						}
+						else{
+							plus.nativeUI.alert("要先登录才能回复哦！",function(e){ 
+				        		if(e.index==0){		        			
+					        	    mui.openWindow({
+										url:"login.html",
+										id:"login",
+										styles:{
+											top:"0",
+											bottom:"0",
+											popGesture:'none'
+										},
+										extras:{
+											logid:3
+										},
+										createNew:false,
+										show:{
+											autoShow:true,
+											aniShow:"pop-in",
+											duration:250
+										},
+										waiting:{
+											autoShow:false,				   
+										}
+									});
+								}        		
+			        	    },"提示","确定"); 
+						}
+					}
+					setTimeout(function(){re=0;},200)
+				})
+			})
+			setInterval("upfresh()",500);
+			function upfresh(){
+			    mui.ready(function(){
+					mui.each(document.querySelectorAll('.mui-slider-group .mui-scroll'), function(index,pullRefreshEl){
+						mui(pullRefreshEl).pullToRefresh({
+						up: {
+								callback: function(){
+									var self=this;						
+									setTimeout(function(){										
+										if(index==0){
+											if(type==1){
+											    setTimeout(function(){
+											        x++;
+										            jiazai(x,n,a,0,all);
+											    },300);
+										        if(x>=pagenum){
+                                                    self.endPullUpToRefresh(true);
+										        }
+										    }
+											if(type==0){											
+												setTimeout(function(){
+												    y++;
+											        getflwd(y,10,qtype_id);
+												},300);
+//												if(y>=p_num){
+//                                                  self.endPullUpToRefresh(true); 
+//										        }
+											}
+									    }
+										if(index==1){
+											setTimeout(function(){
+											    z++;
+											    jiazaijinhua(z,n,a,1,jinhua);
+											},300);
+										    if(z>=pagenum2){
+                                                self.endPullUpToRefresh(true);
+										    }
+										}							                                                                 	 
+									}, 500);
+									self.endPullUpToRefresh();
+								}								    
+							}						   
+						});
+					});
+				});
+			}
+				mui.plusReady(function(){ 
+					var re=0;
+					mui(".wenda-list").on('tap','.t1',function(){
+						if(re==1){return;} 
+						else{
+							re=1;
+							var q_id=$(this).attr("q_id");
+							mui.openWindow({
+							    url:"wenda-detail-list.html",
+							    id:"wenda-detail",
+							    styles:{
+							        top:"0",
+							        bottom:"0",
+							        popGesture:'none'
+							    },
+							    extras:{
+		                            qid:q_id
+							    },
+							    createNew:false,
+							    show:{
+							        autoShow:true,
+							        aniShow:"pop-in",
+							        duration:250
+							    },
+							    waiting:{
+							        autoShow:false,
+							    }
+							})
+						}
+						setTimeout(function(){re=0;},200)
+					});
+				});
+		</script>
+	</body>
+</html>

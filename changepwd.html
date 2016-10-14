@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+</head>
+<body>
+	<style type="text/css">
+	    #tj{width: 100%;background-color: #337ab7;font-family: "微软雅黑";font-size: 16px;color: white;}
+	</style>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <h1 class="mui-title" style="color: white;">修改密码</h1>  
+	</header>
+	<div class="mui-content" style='margin-top: 10px;'>
+	    <form id='login-form' class="mui-input-group">
+			<div class="mui-input-row">
+				<label>旧密码</label>
+				<input id="oldpwd" type="password" class="mui-input-clear mui-input" placeholder="请输入旧密码" />
+			</div>
+			<div class="mui-input-row">
+				<label>新密码</label>
+				<input id="newpwd" type="password" class="mui-input-clear mui-input" placeholder="请输入新密码" />
+			</div>
+			<div class="mui-input-row">
+				<label>重复密码</label>
+				<input id="repwd" type="password" class="mui-input-clear mui-input" placeholder="请再次输入新密码" />
+			</div>
+		</form>
+		<div class="mui-content-padded" align="center">
+			<button type="button" id="tj" class="mui-btn">提交</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+	    mui.init();
+	    mui.plusReady(function(){
+	    	var userid=plus.storage.getItem("userid");
+	    	var re=0;
+        document.getElementById("tj").addEventListener("tap",function(){
+        	if(re==1){return;}
+        	else{
+        		re=1;
+	        	var oldpwd=document.getElementById("oldpwd").value;
+	        	var newpwd=document.getElementById("newpwd").value;
+	        	var repwd=document.getElementById("repwd").value;
+	        	if(oldpwd=="" || newpwd=="" || repwd==""){
+	        		mui.toast("密码输入不能为空");
+	        	}	
+	        	else{
+	        		if(newpwd!=repwd){
+	        			mui.toast("两次密码输入不一致");
+	        	    }
+	        		else{
+						$.getJSON("http://api.chinaxiejun.com/index.php?jsoncallback=?",
+							{
+								app:"mobile.member", 
+								act:"editPassword",
+								user_id:userid,
+								new_pwd:newpwd,
+								old_pwd:oldpwd
+							},
+						    function(msg){
+								if(msg.code==1000){
+									mui.toast("密码修改成功");
+									mui.back();
+								}
+								else{
+									if(msg.code==1008){
+										mui.toast("旧密码输入不正确，请重新输入");
+									}
+									else{
+										mui.toast("密码修改失败，请重试");
+									}
+								}
+						});
+					}
+	        	}
+	        }
+        	setTimeout(function(){re=0;},200);
+			})
+        })
+	</script>
+</body>
+</html>

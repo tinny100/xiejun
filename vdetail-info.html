@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script src="http://static.polyv.net/file/polyvplayer_v2.0.min.js"></script>
+		<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+
+	<body>
+		<style type="text/css">
+			.header{box-shadow: none;}
+			#slider {height: auto;}
+			#neirong{white-space: normal;}
+			.mui-pull-bottom-tips{text-align:center;background-color: #efeff4;font-size: 15px;line-height: 40px;color: #777;}
+			.fl{width: 55%;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+		</style>
+		<header class="mui-bar mui-bar-nav header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title fcff">课程详情</h1>
+		</header>
+        <nav class="mui-bar mui-bar-tab wbox">
+        	<div class="left wbox-1" align="center">
+			    <button type="button" id="collect" class="mui-btn mui-btn-primary" style="width: 80px;">收藏</button>
+        	</div>
+			<div class="right wbox-1" align="center">
+			    <button type="button" id="zan" class="mui-btn mui-btn-primary" style="width: 80px;">点赞</button>
+			</div>
+	    </nav>
+			
+			<div class="mui-media-object" id="video" style="padding-top:44px;"></div>
+			
+
+		<div class="mui-content">
+			<div id="slider" class="mui-slider mui-fullscreen">
+				<div id="sliderSegmentedControl" class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<a class="mui-control-item mui-active" href="#item1mobile">
+						简介	
+					</a>
+					<a class="mui-control-item" href="#item2mobile">
+					      目录
+					</a>
+					<a class="mui-control-item" href="#item3mobile">
+					      心得
+					</a>
+					<a class="mui-control-item" href="#item4mobile">
+					      相关
+					</a>
+				</div>
+				<div id="sliderProgressBar" class="mui-slider-progress-bar mui-col-xs-3"></div>
+				<div class="mui-slider-group">
+					<div id="item1mobile" class="mui-slider-item mui-control-content mui-active">
+						<div id="scroll1" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+							</div>
+						</div>
+					</div>
+					<div id="item2mobile" class="mui-slider-item mui-control-content">
+						<div id="scroll2" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<div class="line-list">
+									<ul class="showlist">
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="item3mobile" class="mui-slider-item mui-control-content">
+						<div id="scroll3" class="mui-scroll-wrapper">
+							<div class="mui-scroll rrr">
+								<ul class="wenda-list ta-l">
+								</ul>
+							</div>
+						</div>
+					</div>
+                    <div id="item4mobile" class="mui-slider-item mui-control-content">
+						<div id="scroll4" class="mui-scroll-wrapper">
+							<div class="mui-scroll">
+								<ul class="">
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/mui.pullToRefresh.js"></script>
+		<script src="js/mui.pullToRefresh.material.js"></script>	
+		<script>
+		mui.init();
+		var pagenum=0;
+		mui('.mui-scroll-wrapper').scroll({bounce: false,indicators: true});
+		mui.plusReady(function(){
+
+			plus.screen.unlockOrientation();
+			var m=1;
+		    var n;		   
+			var self=plus.webview.currentWebview();
+			var cname=self.c_name;
+			var cid=self.c_id;
+			var w=plus.nativeUI.showWaiting("加载中...");
+		    var t=setInterval(function(){
+				    w.setTitle("请等待...");
+//				    jianjie();
+				    checkbuy();
+
+				    clearInterval(t);
+					w.close();
+				},1500); 
+		
+			//获取简介目录
+			function jianjie(buystate,lostate){
+
+				$.ajax({
+				   type: "get",
+				   dataType: "json",
+				   async: true,
+				   url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+				   data:{ app : "mobile.course",
+				          act : "info",
+				          c_id : cid
+				   },
+				   success: function(data){		  				
+						var str="";
+						var str2="";					
+						var nei=data.data.t_desc;
+						nei = nei.replace(/&amp;/gi, '&');
+						nei = nei.replace(/&nbsp;/gi, ' ');
+						nei = nei.replace(/&quot;/gi, '"');
+						nei = nei.replace(/&#39;/g, "'");
+						nei = nei.replace(/&lt;/gi, '<');
+						nei = nei.replace(/&gt;/gi, '>');
+						nei = nei.replace(/<br[^>]*>(?:(rn)|r|n)?/gi, 'n');
+						str +="<div class='pd10 video-jianjie'>";
+						if(lostate==0 || buystate==0){
+							str += "<div class='t1 clearfix'><span class='fl'>"+data.data.c_name+"</span><span class='fr'>￥"+data.data.price+"<span class='fr_buy' id='fr_buy' iurl='"+data.data.img+"' cname='"+data.data.c_name+"' price='"+data.data.price+"'>加入购物车</span></span></div>";
+						}else{
+							str += "<div class='t1 clearfix'><span class='fl'>"+data.data.c_name+"</span><span class='fr'>￥"+data.data.price+"<span class='fr_buy' id='nbuy'>已购买</span></span></div>";
+						}			
+						str += "<div class='t2'>主讲教师:"+data.data.teacher+"</div><div class='t2'>学习人数："+data.data.learner+"</div>";
+						str +="<ul class='mui-table-view'><li class='mui-table-view-cell' id='neirong'>"+nei+"</li></ul></div>";					
+						$("#scroll1 .mui-scroll").append(str);
+						$.each(data.data.course_list, function(i,item){
+						    str2 +="<li curl='" + item.video_url + "' style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'><span class='mui-icon mui-icon-arrowthinright'></span> " + item.name + "</li>";                            						
+						});
+						$(".showlist").append(str2); 
+//						if(mui.os.ios){
+//							shopopen();
+//						}					
+						var play_type=data.data.play_type;
+						if(play_type==2){	
+							$(".mui-media-object").append("<div id='video_show' style='text-align:center;line-height:100px;font-size:12px;height: 100px;'>该视频为直播视频，请在直播页面点击观看!</div>");
+						}
+					    else{
+							$(".mui-media-object").append("<div id='video_show'></div>");
+							var width = $("#video").width();
+				            $("#video").height(width/16*9);
+							if(data.data.price>0 && buystate!=1){	
+								$.each(data.data.course_list, function(i,item){	
+									if(i==0){
+										var v_url=(item.video_url).substr(46);
+			                            var player = polyvObject("#video_show").videoPlayer({
+											'width':'100%',
+											'height':'100%',
+											'flashvars':{"watchEndTime":10,"setScreen":"16_9","ban_skin_big_play_btn":"on"},
+											'vid': v_url,
+											'flashParams':{'wmode':'window','allowScriptAccess':'always','allowFullScreen':'true'}
+									    });
+									}
+								});	
+							    	mui(".showlist").on("tap","li",function(){
+									 	var c_url=(this.getAttribute("curl")).substr(46);
+									 	$("#video_show").remove();
+									 	$(".mui-media-object").append("<div id='video_show'></div>");
+									 	var player = polyvObject("#video_show").videoPlayer({
+											'width':'100%',
+											'height':'100%',
+											'flashvars':{"watchEndTime":300,"setScreen":"16_9","ban_skin_big_play_btn":"on"},
+											'vid': c_url,
+											'flashParams':{'wmode':'window','allowScriptAccess':'always','allowFullScreen':'true'}
+									    });
+									});	
+							}
+							else{
+								$.each(data.data.course_list, function(i,item){	
+									if(i==0){
+										var v_url=(item.video_url).substr(46);
+										var player = polyvObject("#video_show").videoPlayer({
+											'width':'100%',
+											'height':'100%',	
+											'flashvars':{"setScreen":"16_9","ban_skin_big_play_btn":"on"},
+											'vid': v_url,
+											'flashParams':{'wmode':'window','allowScriptAccess':'always','allowFullScreen':'true'}
+										});
+									}
+								});
+								    mui(".showlist").on("tap","li",function(){
+									 	var c_url=(this.getAttribute("curl")).substr(46);
+									 	$("#video_show").remove();
+									 	$(".mui-media-object").append("<div id='video_show'></div>");
+									 	var player = polyvObject("#video_show").videoPlayer({
+											'width':'100%',
+											'height':'100%',
+											'flashvars':{"setScreen":"16_9","ban_skin_big_play_btn":"on"},
+											'vid': c_url,
+											'flashParams':{'wmode':'window','allowScriptAccess':'always','allowFullScreen':'true'}
+									    });
+									});	
+							}
+						}	
+					
+	                if(mui.os.ios){
+						document.getElementById("slider").style.top = document.getElementById("video").offsetHeight+ "px";	//增加slider距离顶部的高度						
+						}
+					if(mui.os.android){
+						document.getElementById("slider").style.top = document.getElementById("video").offsetHeight+"px";	//增加slider距离顶部的高度						
+						}
+					
+					if(plus.storage.getItem("userid")){				
+						var userid = plus.storage.getItem("userid");	
+						//点击加入购物车
+						document.getElementById("fr_buy").addEventListener("tap",function(){
+							plus.storage.setItem("gooduserid",userid);						
+							var iurl=this.getAttribute("iurl");
+							var cname=this.getAttribute("cname");
+							var price=this.getAttribute("price");
+									
+				            //商品数量
+							if(plus.storage.getItem("goodcount")){
+								var m=parseInt(plus.storage.getItem("goodcount"));
+								var a="";
+								function checkgood(st){
+									for(var i=1;i<=m;i++){//判断商品是否已经在购物车中								
+										var getcid=plus.storage.getItem("goodcid"+i);
+										if(getcid==cid){									
+											st="true";	
+											return st;
+										}									
+									}
+								}
+								var b = checkgood(a);
+								if(b=="true"){
+									mui.toast("该视频已存在购物车中");
+								}
+								else{									
+									for(var j=1;j<=m;j++){//判断商品缓存是否还存在								
+										var getcid=plus.storage.getItem("goodcid"+j);										
+										if(!getcid){
+											plus.storage.setItem("goodcid"+j,cid);
+											plus.storage.setItem("goodiurl"+j,iurl);
+											plus.storage.setItem("goodcname"+j,cname);
+											plus.storage.setItem("goodprice"+j,price);
+											break;
+										}
+										else{
+											if(j==m){
+												m += 1;
+												plus.storage.removeItem("goodcount");
+												plus.storage.setItem("goodcount",m.toString());		
+												plus.storage.setItem("goodcid"+m,cid);
+												plus.storage.setItem("goodiurl"+m,iurl);
+												plus.storage.setItem("goodcname"+m,cname);
+												plus.storage.setItem("goodprice"+m,price);
+												break;
+											}
+										}
+									}	
+									mui.toast("该视频已成功加入购物车");
+								}
+							}
+							else{
+								mui.toast("该视频已成功加入购物车");
+								var m=1;
+								plus.storage.setItem("goodcount",m.toString());
+								plus.storage.setItem("goodcid"+m,cid);
+								plus.storage.setItem("goodiurl"+m,iurl);
+								plus.storage.setItem("goodcname"+m,cname);
+								plus.storage.setItem("goodprice"+m,price);																
+							}
+							var shop=plus.webview.getWebviewById("shop.html");
+							shop.reload();
+							shop.evalJS("checkcar();");
+						});	
+						}
+					else{
+						document.getElementById("fr_buy").addEventListener("tap",function(){
+							plus.nativeUI.alert("要先登录才能加入购物车哦！",function(e){ 
+					        		if(e.index==0){
+						        		openlogin();
+									}        		
+					        	},"提示","确定");
+						});
+					}
+				    }
+				});
+			}
+			
+			
+			
+			
+		//禁用，启用购物车
+		function shopopen(){
+	        mui.ajax('http://wap.chinaxiejun.com/index.php?app=buy.apple',{
+                type: 'post', //HTTP请求类型
+                dataType:"json",
+                timeout:60000000,
+                success: function(data) {
+					var da=data.code;
+                    if(da==1001){
+                    	$(".fr_buy").remove();
+                    }else{                                            	
+                    }
+                },
+                error: function(xhr, type, errorThrown) {
+                    mui.toast("error");
+                }
+            });
+			
+		}
+		//检查视频是否已经购买过
+			var lostate,buystate;
+			function checkbuy(){
+				if(plus.storage.getItem("userid")){				
+					var userid = plus.storage.getItem("userid");
+								
+					lostate=1;
+					$.ajax({type: "get",
+					    dataType: "json",
+					    async:false,
+					    url:"http://api.chinaxiejun.com/index.php?jsoncallback=?",
+					  	data:{
+					  			app : "mobile.course",
+					            act : "my_course",
+					            user_id : userid
+					  		},
+					    success: function(msg){
+					    if(msg.data.list){
+					    						
+					    					
+							$.each(msg.data.list, function(i,item){								
+								if(item.c_id==cid){
+									buystate=1;
+									return false;
+								}else{
+									buystate=0;
+								}
+								return buystate;
+							});
+							}else{
+								buystate=0;
+							}
+							
+							jianjie(buystate,lostate);
+							
+						}
+					});
+				}
+				else{
+					lostate=0;
+					buystate=0;
+					jianjie(buystate,lostate);
+				}
+			}
+		    
+			//获取心得体会
+			function getxinde(cid,m,n){
+				$.ajax({
+				    type: "get",
+				    dataType: "json",
+				    async: false,
+				    url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+				    data:{ app : "mobile.course",
+				          act : "experience",
+				          c_id : cid,
+				          cur_page : m,
+				          page_size : n
+				    },
+				    success: function(data){		  				
+						var str="";						
+						pagenum =Math.ceil(data.data.total_num/n);
+						$.each(data.data.list, function(i,item){
+						var nei = item.xinde;
+							nei = nei.replace(/<[^>]+>/g, "");
+							nei = nei.replace(/(^\s*)|(\s*$)/g, '');
+							nei = nei.replace(/&nbsp;/ig, "");
+						var wei = item.gaijin;
+							wei = wei.replace(/<[^>]+>/g, "");
+							wei = wei.replace(/(^\s*)|(\s*$)/g, '');
+							wei = wei.replace(/&nbsp;/ig, "");
+						str +="<li><div class='wbox'>";
+						str += "<div class='l'><img src='"+item.head_url+"' style='width: 60px;height:60px;border-radius: 50%;'></div>";
+						str += "<div class='r'><div class='t'><div class='fl'>"+item.nick_name+"</div><div class='fr'>"+item.create_time+"</div></div>";
+						str +="<div class='t1'><div class='d'><b>心得体会：</b>"+nei+"</div><div class='d'><b>改进事项：</b>"+wei+"</div></div></div></div></li>";					
+						});	
+						$(".wenda-list").append(str);
+				    }
+				});
+            }
+			
+
+		    
+			function openlogin(){
+				mui.openWindow({
+					url:"login.html",
+					id:"login",
+					styles:{
+						top:"0",
+						bottom:"0",
+						popGesture:'none'
+					},
+					extras:{
+						logid:1
+					},
+					createNew:false,
+					show:{
+						autoShow:true,
+						aniShow:"pop-in",
+						duration:200
+					},
+					waiting:{
+						autoShow:false,				   
+					}
+				});
+			}
+			
+		if(plus.storage.getItem("userid")){				
+			var userid = plus.storage.getItem("userid");
+			
+			//判断该课程是否收藏
+			$.getJSON("http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			        {
+			         	app : "mobile.course",
+			            act : "isCollection",
+			            c_id: cid,
+			            user_id : userid
+			        },
+					function(msg){
+					    if(msg.code==1000){
+					    	$("#collect").remove();
+					    	$(".left").append("<button type='button' id='cancel_col' class='mui-btn mui-btn-primary' style='width:80px;'>取消收藏</button>");					    	
+					        cancel_col();
+					    }
+					}
+			)
+			
+			//收藏课程 
+			function collect(){			
+			document.getElementById("collect").addEventListener("tap",function(){
+			  	$.ajax({
+			  		type:"get",
+			  		dataType:"json",
+			  		async:false,
+			  		url:"http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			  		data:{
+			  			app : "mobile.course",
+			            act : "setCollection",
+			            c_id : cid,
+			            user_id : userid
+			  		},
+			  		success:function(msg){
+			  			if(msg.code==1000){
+			  				mui.toast("收藏成功")
+			  				$("#collect").remove();
+					    	$(".left").append("<button type='button' id='cancel_col' class='mui-btn mui-btn-primary' style='width:80px;'>取消收藏</button>");
+			  			    cancel_col();
+			  			}
+			  			else{
+			  				mui.toast("您已收藏过!")
+			  			}
+			  		}
+			  	});
+			})
+			}
+			collect();
+			
+			//取消收藏课程
+			function cancel_col(){			
+			document.getElementById("cancel_col").addEventListener("tap",function(){
+			  	$.ajax({
+			  		type:"get",
+			  		dataType:"json",
+			  		async:false,
+			  		url:"http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			  		data:{
+			  			app : "mobile.course",
+			            act : "setUnCollection",
+			            c_id : cid,
+			            user_id : userid
+			  		},
+			  		success:function(msg){
+			  			if(msg.code==1000){
+			  				mui.toast("取消收藏成功")
+			  				$("#cancel_col").remove();
+			  				$(".left").append("<button type='button' id='collect' class='mui-btn mui-btn-primary' style='width:80px;'>收藏</button>");
+			  			    collect();
+			  			}
+			  			else{
+			  				mui.toast("您还未收藏过!")
+			  			}
+			  		}
+			  	});
+			})
+			} 
+			
+			//课程点赞
+			document.getElementById("zan").addEventListener("tap",function(){
+			   	$.ajax({
+			  		type:"get",
+			  		dataType:"json",
+			  		async:false,
+			  		url:"http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			  		data:{
+			  			app : "mobile.course",
+			            act : "increzan",
+			            c_id : cid,
+			            user_id : userid
+			  		},
+			  		success:function(msg){
+			  		    if(msg.code==1000){
+			  				mui.toast("点赞成功")			  				
+			  			}
+			  			else{
+			  				mui.toast("您已赞过!")
+			  			}
+			  		}
+			  	});
+			});
+		}
+		else{
+			if(document.getElementById("collect")){
+				document.getElementById("collect").addEventListener("tap",function(){
+					plus.nativeUI.alert("要先登录才能收藏哦！",function(e){ 
+			        		if(e.index==0){		        			
+				        		openlogin();
+							}        		
+			        	},"提示","确定"); 
+				});
+			}
+			if(document.getElementById("cancel_col")){
+				document.getElementById("cancel_col").addEventListener("tap",function(){
+					plus.nativeUI.alert("要先登录才能取消收藏哦！",function(e){ 
+			        		if(e.index==0){		        			
+				        		openlogin();
+							}        		
+			        	},"提示","确定"); 
+				});
+			}
+			document.getElementById("zan").addEventListener("tap",function(){
+				plus.nativeUI.alert("要先登录才能点赞哦！",function(e){ 
+		        		if(e.index==0){
+			        		openlogin();
+						}        		
+		        	},"提示","确定");
+			});
+		}
+				
+			 getxinde(cid,1,5);			 
+			 mui.each(document.querySelectorAll('.mui-slider-group .rrr'), function(index,pullRefreshEl){
+						mui(pullRefreshEl).pullToRefresh({
+							up: {
+									callback: function() {
+										var self=this;	
+										var c=1;
+										setTimeout(function(){										
+										if(index==0){													
+		                                    setTimeout(function(){	                                   
+		                                   	m++;
+											getxinde(cid,m,5);},500);
+		                                    if(m>=pagenum){
+	                                        self.endPullUpToRefresh(true);}		                                    
+	                                     }
+										},1000);
+										self.endPullUpToRefresh();																								
+								}
+							}
+						});
+					}
+			);
+		
+		
+		mui.back = function(){
+			plus.screen.lockOrientation("portrait-primary");//只支持竖屏
+			mui.currentWebview.close();
+		}	
+		
+			
+		});
+		</script>
+	</body>
+</html>

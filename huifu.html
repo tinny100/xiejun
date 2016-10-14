@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+  	<script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.min.js"></script>	
+	<link href="css/mui.min.css" rel="stylesheet" />
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />   
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+    </script>
+</head>
+<body>
+	<style type="text/css">
+		.myquestion{background-color: white;height: 150px;width:100%;padding: 10px 10px;}
+        .myquestion textarea{height: 130px;border:none;}
+        .mui-bar-nav .mui-pull-right button{width:100%;color: white;line-height: 44px;font-size: 14px;border-radius: 0px;border:0px;background-color: #337ab7;}
+	</style>
+	<header class="mui-bar mui-bar-nav" style="background-color: #337ab7;">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <a class="mui-pull-right"><button type="button" id="tijiao">提交</button></a>
+	    <h1 class="mui-title" style="color: white;">回复</h1>  
+	</header>
+	
+    <div class="mui-content">
+    	<div class="myquestion">
+			<textarea placeholder="请输入你的回答:" id="myqst" style="font-size:14px;"></textarea>
+		</div>
+    </div>
+<script type="text/javascript">
+	mui.plusReady(function(){
+		var self=plus.webview.currentWebview();
+		var userid=plus.storage.getItem("userid");
+		var q_id=self.q_id;	
+		var parent_id=self.parent_id;
+		var xianshi=self.xianshi;
+		var re=0;
+		document.getElementById("tijiao").addEventListener("tap",function(){
+			if(re==0){
+				re=1;
+				$('#tijiao').attr('disabled','disabled');
+				var answer=document.getElementById("myqst").value;
+				if(answer.length<=0){
+					mui.toast("请填写回复内容！");
+				}
+				else{
+					$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.question&act=add_answer&format=json&jsoncallback=?",
+						{
+				            q_id:q_id,
+				            parent_id:parent_id,
+				            user_id:userid,
+				            content:answer
+						},
+						function(msg){
+		                    if(msg.code==1000){                    	
+		                    	if(xianshi==1){
+	//	                    		var wenda=plus.webview.getWebviewById("wenda.html");
+	//	                    		wenda.reload();
+		                    		mui.openWindow({
+									    url:"wenda-detail-list.html",
+									    id:"wenda-detail",
+									    styles:{
+									        top:"0",
+									        bottom:"0",
+									        popGesture:'none'
+									    },
+									    extras:{
+				                            qid:q_id
+									    },
+									    createNew:false,
+									    show:{
+									        autoShow:true,
+									        aniShow:"pop-in",
+									        duration:200
+									    },
+									    waiting:{
+									        autoShow:false,
+									    }
+									})
+		                    		setTimeout(function(){
+		                    			var self=plus.webview.currentWebview();
+		                    			self.close("none");
+		                    		},800)
+		                    	}
+		                    	else{
+			                    	var wendade=plus.webview.getWebviewById("wenda-detail");
+			                    	wendade.reload();
+			                    	var wenda=plus.webview.getWebviewById("wenda.html");
+			                    	wenda.reload();
+			                    	setTimeout(function(){
+		                    		mui.back();	                    		
+		                    		},800);	
+		                    	}	
+		                    	mui.toast("回复成功");	                    	                    	
+		                    }
+		                    else{
+		                    	mui.toast("回复失败,请重试");
+		                    }
+						}
+					);
+				}
+			}
+			else{
+				return;
+			}
+			setTimeout(function(){
+				re=0;
+				$('#tijiao').removeAttr("disabled");
+			},300)
+		});
+	});
+</script>
+</body>
+</html>

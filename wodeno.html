@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<title></title>
+    <script language="javascript" src="js/jquery.min.js"></script>
+	<script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<link href="css/iconfont.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<style type="text/css">
+	body,button{font-family:"微软雅黑";}
+    .fenlei li, .fenlei li i{font-size:16px;}
+    .user_img{float: left;margin-right: 12px;}
+    .user_img img{border-radius: 50%;}
+    .user_name{margin-left: 60px;width: 100%;}
+    .btn{margin-top: 5px;}
+    .btn span{color:#2A50A2;font-size:12px;}
+    .btn #qiandao{width: 90px;height: 25px;line-height:25px;text-align:center;border:1px solid #BBBBBB;border-radius: 4px;float: left;}
+    .user_name{margin-top: -7px;}
+    .user_name,.user_id,.btn{height: 30px;line-height: 30px;display: block;}
+    .myinfo{height: 80px;background-color: white;width: 100%;border-top:0px;border-bottom:1px solid #E0E0E0;}
+	.myinfo .bor1{border-left: 1px solid #E0E0E0;border-right: 1px solid #E0E0E0;}
+	.myinfo .bor2{border-right: 1px solid #E0E0E0;}
+	.myinfo .wbox-1{width: 25%;text-align: center;}
+	.my_img{height: 60px;padding-top: 5px;}
+	.my_img img{border-radius:50%;height:50px;width:50px;}
+	.my_name{height: 20px;line-height: 20px;}
+	</style>
+	<div class="mui-content fenlei">
+		<ul class="mui-table-view mui-table-view-chevron fenlei">
+			<li class="mui-table-view-cell">	
+				<div class="user_img" id="info"><img id="head_img" height="50px" width="50px" src=""></div>
+			    <div class="user_name mui-navigate-right">
+			        	<div class="name" id="user_name">昵称：<span id="u_name"></span></div>
+			        	<div class="user_id" id="userid">用户ID：<span id="u_id"></span></div>
+			        	<div class="btn">
+				        	<div id="qiandao">立即签到</div>
+				        	<span style="margin-left:5px;">签到即送5携君币</span>			        	
+			        	</div>
+			        	<div class="mui-pull-right"></div>
+			    </div>
+		    </li>
+		</ul>
+        <div class="myinfo wbox">
+        	<div class="myh wbox-1" id="myh">
+        		<div class="my_img"><img src="images/9yg.png"></div>
+        		<div class="my_name">我的提问</div>
+        	</div>
+        	<div class="myw wbox-1 bor1" id="myw">
+        		<div class="my_img"><img src="images/jixiao.png"></div>
+        		<div class="my_name">我的解答</div>
+        	</div>
+        	<div class="myk wbox-1 bor2" id="myk">
+        		<div class="my_img"><img src="images/peixun.png"></div>
+        		<div class="my_name">我的课程</div>
+        	</div>
+        	<div class="mys wbox-1" id="mys">
+        		<div class="my_img"><img src="images/jili.png"></div>
+        		<div class="my_name">我的收藏</div>
+        	</div>
+        </div>
+        
+		<ul class="mui-table-view mui-table-view-chevron fenlei">
+			<li class="mui-table-view-cell">	
+				<div class="mui-navigate-right">
+					<i class="icon iconfont icon-yue"></i>
+					我的余额：<span style="color:#2A50A2;font-size: 12px;" id="xieb"></span>	
+					<span style="color:#2A50A2;font-size: 14px;" id="jia">+5</span>	
+					<!--<i class="mui-pull-right" style="margin-right: -30px;" id="chongzhi">充值</i>-->
+				</div>
+			</li>
+			<li class="mui-table-view-cell" id="my_order">
+				<div class="mui-navigate-right">
+					<i class="icon iconfont icon-dingdan"></i>
+					我的订单	
+				</div>
+			</li>
+		</ul>
+		<ul class="mui-table-view fenlei mui-table-view-chevron">
+			<li class="mui-table-view-cell" onclick="shareShow()">	
+				<div class="mui-navigate-right">
+					<i class="icon iconfont icon-tuijian"></i>
+					分享推荐
+					<span class="mui-pull-right" style="margin-right:-30px;color:#2A50A2;font-size:12px;margin-top: 3px;">推荐注册成功即送10携君币</span>
+				</div>
+			</li>
+			<li class="mui-table-view-cell" id="idea">	
+			    <div class="mui-navigate-right">
+					<i class="icon iconfont icon-yijianfankui"></i>
+					意见反馈
+				</div>
+			</li>
+			<li class="mui-table-view-cell" id="help">	
+			    <div class="mui-navigate-right">
+					<i class="icon iconfont icon-bangzhuzhongxin"></i>
+					帮助中心
+				</div>
+			</li>
+		</ul>
+	</div>
+	
+		<script type="text/javascript">
+			mui.init({
+				keyEventBind: {
+					backbutton: false
+				}
+			});
+			var re=0;
+		//获取用户信息并显示
+		function get_user_info(username){
+			mui.plusReady(function(){
+				var pwd=plus.storage.getItem("password");
+				$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=login&format=json&jsoncallback=?",
+			    	{
+			    	    user_name:username,
+			            password:pwd
+			    	},
+			    	function(msg){
+			    	   var img_url=msg.data.head_url;
+			    	   var u_name=msg.data.nick_name;
+			  	       document.getElementById("u_name").innerHTML=u_name;
+			    	   document.getElementById("head_img").src=img_url;   
+			    	}
+			    );
+		    });
+		}
+		//携君币余额获取
+		function getxiebi(userid){
+			$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=get_user_jifen&format=json&jsoncallback=?",
+	    	        {
+	    		        user_id:userid
+	    	        },
+	    	        function(data){
+	                    var xieb=data.data;                   
+	                    document.getElementById("xieb").innerHTML=xieb+"携君币";
+	    	        }
+	            );
+		}
+		
+		//判断是否签到过
+		function qiandao(userid){
+			$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=get_sign_statistics&format=json&jsoncallback=?",
+				{
+					user_id:userid
+				},
+				function(msg){								
+					if(msg.data.today_signed>0){
+						document.getElementById("qiandao").innerHTML="已签到";
+					}						
+					else{
+						document.getElementById("qiandao").innerHTML="立即签到";
+					}
+				}
+			);
+		}
+			
+	mui.plusReady(function(){
+		var userid = plus.storage.getItem("userid");		
+		var self = plus.webview.currentWebview();
+		self.setStyle({bounceBackground: "#efeff4",bounce: "vertical"});//设置窗口的样式
+		if(plus.storage.getItem("username")){
+			var username=plus.storage.getItem("username");
+			var pwd=plus.storage.getItem("password");
+			$.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=login&format=json&jsoncallback=?",
+				{
+				    user_name:username,
+				    password:pwd
+				},
+				function(msg){
+				    var img_url=msg.data.head_url;
+				    var u_name=msg.data.nick_name;
+				  	document.getElementById("u_name").innerHTML=u_name;
+				    document.getElementById("head_img").src=img_url;   
+				}
+			);
+			document.getElementById('u_id').innerHTML=userid;
+			getxiebi(userid);
+			qiandao(userid);
+	    }		
+
+		function openwindow(x,y){
+			mui.openWindow({
+				url:x,
+				id:y,
+				styles: {
+					top: "0px", 
+					bottom: "0", 
+					popGesture:'none',
+					bounce:"none"
+				},
+				show: {
+					autoShow: true, 
+					aniShow: "pop-in",
+					duration: 200 
+				},
+				waiting: {
+					autoShow: false, 			   
+				}
+			});
+		}
+		var myinfo_url="myinfo.html";
+		var myinfo_id="myinfo";	
+		document.getElementById("info").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myinfo_url,myinfo_id);}
+			setTimeout(function(){re=0},200);
+			})		
+		document.getElementById("user_name").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myinfo_url,myinfo_id);}
+			setTimeout(function(){re=0},200);
+			})
+		document.getElementById("userid").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myinfo_url,myinfo_id);}
+				setTimeout(function(){re=0},200);
+			})
+		
+		$("#jia").hide();		
+        //点击立即签到
+		document.getElementById("qiandao").addEventListener('tap', function(){	
+			if(re==1){return;}
+			else{
+				re=1;				
+	            $.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=sign&format=json&jsoncallback=?",
+	    	        {
+	    		        user_id:userid
+	    	        },
+	    	        function(data){
+				        if(data.code == 1000){
+						    $.getJSON("http://api.chinaxiejun.com/index.php?app=mobile.member&act=get_sign_statistics&format=json&jsoncallback=?",
+						    	{
+						    		user_id:userid
+						    	},
+						    	function(msg){
+									if(msg.code == 1000){									
+										document.getElementById("qiandao").innerHTML="已签到";
+										getxiebi(userid);	
+										$("#jia").show();
+										$("#jia").fadeOut(1500);
+										mui.toast("已连续签到"+msg.data.lianxu+"天");		
+									}
+						    	}
+					        );
+				        }
+				        else{
+	//				        mui.toast("今天已经签到过了！");	
+				        }
+	    	        }
+	            );  
+            }
+			setTimeout(function(){re=0},200);
+		});
+		//点击跳转提问页
+		var mytiwen_url="mytiwen.html";
+		var mytiwen_id="mytiwen";	
+        document.getElementById("myh").addEventListener('tap', function(){
+        	if(re==1){return;}
+			else{
+				re=1;
+				openwindow(mytiwen_url,mytiwen_id);}
+			setTimeout(function(){re=0},200);			
+		});
+		
+		//点击跳转课程页
+		var mycourse_url="mycourse.html";
+		var mycourse_id="mycourse";	
+		document.getElementById("myk").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				openwindow(mycourse_url,mycourse_id);}
+			setTimeout(function(){re=0},200);		
+		});
+		
+		//点击跳转问答页
+		var myanswer_url="myanswer.html";
+		var myanswer_id="myanswer";	
+        document.getElementById("myw").addEventListener('tap', function(){
+        	if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myanswer_url,myanswer_id);}
+			setTimeout(function(){re=0},200);			
+		});
+		
+		//点击跳转收藏页
+		var myatten_url="myatten.html";
+		var myatten_id="myatten";	
+        document.getElementById("mys").addEventListener('tap', function(){
+        	if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myatten_url,myatten_id);}
+			setTimeout(function(){re=0},200);				
+		});
+		
+		
+		//我的订单
+		var myorder_url="myorder.html";
+		var myorder_id="myorder";	
+		document.getElementById("my_order").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myorder_url,myorder_id);}
+			setTimeout(function(){re=0},200);	            
+		})
+		
+		//意见反馈
+		document.getElementById("idea").addEventListener("tap",function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				bts=[{title:"QQ:800076775"},{title:"拨打电话"}];
+				plus.nativeUI.actionSheet({cancel:"取消",buttons:bts},
+					function(e){
+						var i=e.index;
+						if(i==2){
+							plus.device.dial("021-31009080");
+						}
+					}
+				);
+			}
+			setTimeout(function(){re=0},200);	    
+		});
+		
+		//帮助中心
+		var myhelp_url="help.html";
+		var myhelp_id="help";	
+		document.getElementById("help").addEventListener('tap', function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				openwindow(myhelp_url,myhelp_id);}
+			setTimeout(function(){re=0},200);	         
+		})		
+	});
+	
+	    //分享功能
+		var shares=null;
+   		var share_text="这是一个最友爱的学习交流平台，我们一起在这里拜师学艺、学习成长、职业转型和自我实现的平台。";
+		function plusReady(){
+			updateSerivces();
+		}
+		if(window.plus){
+			plusReady();
+		}else{
+			document.addEventListener("plusready",plusReady,false);
+		}
+		/**
+		 * 更新分享服务
+		 */
+		function updateSerivces(){
+			plus.share.getServices( function(s){
+				shares={};
+				for(var i in s){
+					var t=s[i];
+					shares[t.id]=t;
+				}
+			}, function(e){
+				mui.toast( "获取分享服务列表失败");
+			} );
+		}
+		//打开分享
+		function shareShow(){
+			if(re==1){return;}
+			else{
+				re=1;
+				var ids=[{id:"weixin",ex:"WXSceneSession"},{id:"weixin",ex:"WXSceneTimeline"}],
+				bts=[{title:"发送给微信好友"},{title:"分享到微信朋友圈"}];
+//				if(plus.os.name=="iOS"){
+//					ids.push({id:"qq"});
+//					bts.push({title:"分享到QQ"});
+//				}
+				plus.nativeUI.actionSheet({cancel:"取消",buttons:bts},
+					function(e){
+						var i=e.index;
+						if(i>0){
+							shareAction(ids[i-1].id,ids[i-1].ex);
+						}
+					}
+				);
+			}
+			setTimeout(function(){re=0;},200);
+	    }
+		
+		//分享操作
+		function shareAction(id,ex) {
+			var s=null;
+			if(!id||!(s=shares[id])){
+				mui.toast( "无效的分享服务！" );
+				return;
+			}
+			if ( s.authenticated ) {
+				shareMessage(s,ex);
+			} else {
+				s.authorize( function(){
+						shareMessage(s,ex);
+					},function(e){
+					mui.toast( "认证授权失败！");
+				});
+			}
+		}
+		
+		//发送分享消息
+		function shareMessage(s,ex){
+			var userid = plus.storage.getItem("userid");
+			var msg={content:share_text,href:"http://www.chinaxiejun.com/?uid="+userid,title:"携君教育-携手未来",pictures:["images/logo_small.png"],thumbs:["images/logo_small.png"],extra:{scene:ex}};
+//			plus.nativeUI.alert(JSON.stringify(msg));
+			s.send( msg, function(){
+				mui.toast( "分享到\""+s.description+"\"成功！ ");
+			}, function(e){
+				mui.toast( "分享到\""+s.description+"\"失败！");
+			} );
+		}
+		
+</script>
+</body>
+</html>

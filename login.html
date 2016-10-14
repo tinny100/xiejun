@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="ui-page-login">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<link href="css/style.css" rel="stylesheet" />
+	</head>
+<style type="text/css">
+    .head{height: 100px;width:100%;text-align: center;}
+	#img{border-radius: 50%;margin-top:15px;}
+	#login{width: 100%;background-color: #337ab7;font-family: "微软雅黑";font-size: 16px;color: white;margin-top: 25px;}
+    .foget{margin-left: 10px;margin-right: 10px;display: -webkit-box;}
+    .forget{display: -webkit-box;}
+    .duanx,.forget_pwd{-webkit-box-flex: 1;width: 50%;}   
+    .mui-input-group .mui-input-row label{width:28%;}
+    .mui-input-group .mui-input-row input{width:72%;}
+</style>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" id="back"></a>
+			<a class="mui-pull-right"><span id="regist" style="line-height: 44px;color: white;">注册<span></a>
+			<h1 class="mui-title" style="color:white;">登录携君</h1>
+		</header>
+		<div class="mui-content">
+			<div class="head"><img id="img" src="images/logo_small.png" width="80px" height="80px"></div>
+			<form id='login-form' class="mui-input-group">
+				<div class="mui-input-row">
+					<label>用户名</label>
+					<input id="username" type="text" class="mui-input-clear mui-input" placeholder="请输入手机号" />
+				</div>
+				<div class="mui-input-row">
+					<label>密码</label>
+					<input id="password" type="password" class="mui-input-clear mui-input" placeholder="请输入密码" />
+				</div>
+			</form>
+			<div class="mui-content-padded" align="center">
+				<button type="button" id="login" class="mui-btn">登 &nbsp;&nbsp;录</button>
+			</div>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+		mui.init();		
+		mui.plusReady(function(){
+		//检查网络是否已经连接
+		var network = true;
+		if (mui.os.plus) {
+			mui.plusReady(function() {
+				if (plus.networkinfo.getCurrentType() == plus.networkinfo.CONNECTION_NONE) {
+					network = false;
+					plus.nativeUI.toast("当前网络不给力，请检查你的网络连接!",{duration:"long"});
+				}
+			});
+		}
+		var login=document.getElementById("login");
+		var username=document.getElementById("username");
+	    var password=document.getElementById("password");
+
+	    login.addEventListener("tap",function(){
+	    if(username.value=="" || password.value==""){
+			mui.toast("用户名或密码不能为空！");
+			}
+	    else{
+	    $.ajax({
+	    	type:"get",
+	    	dataType: "jsonp",
+	    	async:false,
+	    	url:"http://api.chinaxiejun.com/index.php?app=mobile.member&act=login&format=json&jsoncallback=?",
+	    	data:{
+	    		user_name:username.value,
+                password:password.value
+	    	},
+	    	success: function(msg){//1003参数错误，1004账号密码不匹配
+	    		if(msg.code==1004){
+	    			mui.toast("账号密码不匹配，请重新输入");
+	    		}
+	    		if(msg.code==1000){
+	    			plus.storage.setItem("username", username.value);
+			    	plus.storage.setItem("password", password.value);
+			    	plus.storage.setItem("userid", msg.data.user_id);
+	    			var self=plus.webview.currentWebview();
+	    			var logid=self.logid;
+	    			switch(logid){
+	    				case 1://点播视频详情进入
+		    				var vdetailinfo=plus.webview.getWebviewById("vdetail-info");
+				    		vdetailinfo.reload();
+				    		var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    		wodeno.reload();
+				    		var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();
+					    	if(mui.os.ios){
+						    	setTimeout(function(){					    		
+						    		mui.back();
+						    	},300);
+						    }else{
+						    	setTimeout(function(){					    		
+						    		mui.back();
+						    	},1000);
+						    }
+				    		break;
+				    	case 2://直播视频详情进入
+		    				var vdetailzhibo=plus.webview.getWebviewById("vdetail-zhibo");
+				    		vdetailzhibo.reload();
+				    		var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    		wodeno.reload();
+				    		var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();	
+					    	if(mui.os.ios){
+						    	setTimeout(function(){					    		
+						    		mui.back();
+						    	},300);
+						    }else{
+						    	setTimeout(function(){					    		
+						    		mui.back();
+						    	},1000);
+						    }
+				    		break;
+				    	case 3://提问进入
+					    	var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    		wodeno.reload();
+				    		wodeno.hide();
+				    		var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();
+					    	shop.hide();
+				    		mui.back();
+				    		break;	
+				    	case 4://回复进入
+					    	var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    		wodeno.reload();
+				    		var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();	
+					    	var wenda=plus.webview.getWebviewById("wenda.html");
+					    	wenda.reload();
+				    		mui.back();
+				    		break;	
+				    	case 5://问答详情点赞进入
+					    	var wendade=plus.webview.getWebviewById("wenda-detail");
+					    	wendade.reload();
+					    	var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    		wodeno.reload();
+				    		var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();	
+					    	if(mui.os.ios){
+						    	setTimeout(function(){					    		
+						    		mui.back();
+						    	},300);
+						    }else{
+						    	setTimeout(function(){					    		
+						    		mui.back();
+						    	},1000);
+						    }
+				    		break;	
+				    	case 6://购物车进入
+				    	    plus.nativeUI.showWaiting("加载中...");
+				    	    var wodeno=plus.webview.getWebviewById("wodeno.html");
+				    		wodeno.reload();
+				    		wodeno.hide();
+					    	var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();	
+					    	setTimeout(function(){
+					    		mui.back();
+					    		plus.nativeUI.closeWaiting();
+					    	},500)				    	
+				    		shop.show();
+				    		break;
+				    	default:
+					    	mui.back();
+					    	var shop=plus.webview.getWebviewById("shop.html");
+					    	shop.reload();	
+				    		var wode=plus.webview.getWebviewById("wode.html");
+				    		wode.hide();
+				    		var regist=plus.webview.getWebviewById("regist");
+				    		if(regist){
+				    			regist.hide();
+				    		}				    		
+				    		var wodeno=plus.webview.getWebviewById("wodeno.html");
+//				    		var user=plus.storage.getItem("username");			
+//				    		var userid = plus.storage.getItem("userid");
+//				    		wodeno.evalJS("get_user_info("+user+");document.getElementById('u_id').innerHTML="+userid+";getxiebi("+userid+");qiandao("+userid+")");	    						    		
+				    		wodeno.reload();
+				    		setTimeout(function(){wodeno.show();},200);
+				    		break;				    				    	    
+	    			}
+	    		}
+	    	},
+	    	error:function(){
+	    		mui.toast("登录异常,请稍候再试！");
+	    	}
+	    });
+	    }
+	    })
+	    
+	    //跳转注册页面
+	    var re=0;
+	    document.getElementById("regist").addEventListener('tap',function(){
+	    	if(re==1){return;}
+	    	else{
+	    		re=1;
+					mui.openWindow({
+					    url:"regist.html",
+					    id:"regist",
+					    styles:{
+					      top:"0",
+					      bottom:"0",
+					    },
+					    createNew:false,
+					    show:{
+					      autoShow:true,
+					      aniShow:"pop-in",
+					      duration:250
+					    },
+					    waiting:{
+					      autoShow:false,				   
+					    }
+				});
+				}
+	    	setTimeout(function(){re=0;},200);
+			});
+			
+        });
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="ui-page-login">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<link href="css/iconfont.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<style type="text/css">
+		#regist{width: 100%;background-color: #337ab7;font-family: "微软雅黑";font-size: 16px;color: white;margin-top: 25px;}
+		#img{border-radius: 50%;margin-top:15px;}
+		.foget{margin-left: 10px;margin-right: 10px;display: -webkit-box;}
+        .forget{display: -webkit-box;}
+        .duanx,.forgetpwd{-webkit-box-flex: 1;width: 50%;} 
+        .head{height: 100px;width:100%;text-align: center;} 
+        .iconfont{color:#AAAAAA;}
+        .mui-input-row label{width:15%}
+        .mui-input-row label~input{width:50%;float:none;padding-right: 15px;}
+		#getyzm{position:absolute;top:0px;right:0px;width:100px;height:100%;border-bottom: none;border-top:none;border-radius: 0px;background-color: #337ab7;color:white;}		
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" id="back"></a>
+			<!--<a class="mui-pull-right"><span id="login" style="line-height: 44px;color: white;">登录<span></a>-->
+			<h1 class="mui-title" style="color:white;">注册携君</h1>
+		</header>
+		<div class="mui-content">
+			<div class="head"><img id="img" src="images/logo_small.png" width="80px" height="80px"></div>
+			 <form id='regist-form' class="mui-input-group">
+				<div class="mui-input-row">
+					<label><span class="mui-icon iconfont icon-shouji"></span></label>
+					<input id="username" type="text" class="mui-input-clear mui-input" placeholder="请输入手机号" />
+				</div>
+				<div class="mui-input-row" style="position:relative;">
+					<label><span class="mui-icon iconfont icon-yanjing"></span></label>
+					<input id="yzm" type="text" class="mui-input" placeholder="请输入验证码" / style="float: none;">
+				    <button type="button" id="getyzm" class="mui-btn">获取验证码</button>
+				</div>
+				<div class="mui-input-row">
+					<label><span class="mui-icon iconfont icon-password"></label>
+					<input id="password" type="password" class="mui-input-clear mui-input" placeholder="请设置密码" />
+				</div>
+			</form>
+			<div class="mui-content-padded" align="center">
+				<button type="button" id="regist" class="mui-btn">注&nbsp;&nbsp;册</button>
+			</div>
+			<div class="foget">
+				<div class="duanx" id="login" style="color:#999999;"><span>账号登录</span></div>
+				<div class="forgetpwd" id="forgetpwd" style="text-align: right;color:#999999;"><span>忘记密码？</span></div>
+			</div>
+		</div>		
+		<script type="text/javascript">
+		mui.init();
+		var username=document.getElementById("username").value;		
+        mui.plusReady(function(){
+        var re=0;
+		document.getElementById("login").addEventListener("tap",function(){		
+			if(re==1){
+				return;
+			}
+			else{
+				re=1;
+				mui.openWindow({
+						    url:"login.html",
+						    id:"login",
+						    styles:{
+						      top:"0",
+						      bottom:"0",
+						    },
+						    createNew:false,
+						    show:{
+						      autoShow:true,
+						      aniShow:"pop-in",
+						      duration:250
+						    },
+						    waiting:{
+						      autoShow:false,			   
+						    }
+					});
+			}
+			setTimeout(function(){re=0;},200)
+		})
+		document.getElementById("forgetpwd").addEventListener("tap",function(){	
+			if(re==1){return;}
+			else{
+				re=1;
+				mui.openWindow({
+					    url:"resetpwd.html",
+					    id:"resetpwd",
+					    styles:{
+					      top:"0",
+					      bottom:"0",
+					    },
+					    createNew:false,
+					    show:{
+					      autoShow:true,
+					      aniShow:"pop-in",
+					      duration:250
+					    },
+					    waiting:{
+					      autoShow:false,			   
+					    }
+				});
+			}
+			setTimeout(function(){re=0;},200);
+		})
+
+		var btopen=0;
+		document.getElementById("getyzm").addEventListener("tap",function(){
+			var disa=$('#getyzm').attr("disabled");
+        	if(!disa && btopen==0){
+        		btopen=1;
+        		$('#getyzm').attr("disabled","disabled");
+				var username=document.getElementById("username").value;			
+				if(username==""){
+					mui.toast('手机号不能为空!');
+					$('#getyzm').removeAttr("disabled");
+				}			
+				else{
+					var Mobile = /^0?1[3|4|5|8][0-9]\d{8}$/;
+					if(username.length!=11 || !Mobile.test(username)){
+				   		mui.toast('请输入合法的手机号码!');
+				   		$('#getyzm').removeAttr("disabled");
+					}
+					else{
+						mui.post("http://wap.chinaxiejun.com/index.php?app=member&act=ajax_check_mobile",
+							{
+								mobile: username
+							},
+							function(data){
+								if(data=="true"){
+									$.get("http://wap.chinaxiejun.com/index.php?app=member&act=send_sms",
+										{
+											mobile: username
+										},
+										function(data){
+											if(data.result==1){												
+												$('#getyzm').html('已发送(<span id="time">121</span>)');												
+												timer = self.setInterval(addsec,1000);
+												addsec();												
+											}
+											else{
+												mui.toast('您每天注册发送短信次数已用完!');
+												$('#getyzm').removeAttr("disabled");
+											}
+										},
+										"json"
+									);
+								}
+								else{
+									mui.toast('该手机号码已被使用!');
+									$('#getyzm').removeAttr("disabled");
+								}
+							}							
+						);						
+					}				
+				}
+				btopen=0;
+			}
+        	else{
+        		return;
+        	}
+			function addsec(){		 
+				var t = $('#time').html();
+				if(t > 0){			  
+				    $('#time').html(t-1);
+				}
+				else{			  
+				    window.clearInterval(timer);
+				    $('#getyzm').html('<span id="time"></span>获取验证码');
+				    $('#getyzm').removeAttr("disabled");
+				    btopen=0;
+				}
+			}		
+		});
+				
+		document.getElementById("regist").addEventListener("tap",function(){
+			if(re==1){return;}
+			else{
+				re=1;
+				var username=document.getElementById("username").value;	
+				var pwd=document.getElementById("password").value;
+				var getyzm=document.getElementById("yzm").value;
+				if(username.length==""){
+				    mui.toast("手机号不能为空!");
+				}
+				else{
+					var Mobile = /^0?1[3|4|5|8][0-9]\d{8}$/;
+					if(username.length!=11 || !Mobile.test(username)){
+				   		mui.toast('请输入合法的手机号码!');
+					}
+					else{
+						if(getyzm.length==""){
+						    mui.toast("验证码不能为空!");
+						}
+						else{
+							if(pwd.length==""){
+							    mui.toast("密码不能为空!");
+							}
+							else{
+								$.post("http://wap.chinaxiejun.com/index.php?app=member&act=register",
+									{
+										mobile: username,
+										checkcode:getyzm,
+										password:pwd			
+									},
+									function(data){
+										if(data.result==1){
+		                                    mui.toast("注册成功!");
+		                                    setTimeout(function(){
+			                                    mui.openWindow({
+													url:"login.html",
+													id:"login",
+													styles:{
+														top:"0",
+														bottom:"0",
+														popGesture:'none'
+													},
+													createNew:false,
+													show:{
+													    autoShow:true,
+													    aniShow:"pop-in",
+													    duration:200
+													},
+													waiting:{
+													    autoShow:false,				   
+													}
+												});	
+												setTimeout(function(){
+													var self=plus.webview.getWebviewById("regist");
+													self.close("none");
+												},400);
+											},500);
+										}
+										else{
+											mui.toast("验证码不正确,请重试!");
+										}									
+									},
+									"json"
+								);
+							}
+						}
+					}				
+				}
+			}
+			setTimeout(function(){re=0;},200)
+		});
+		
+	})	
+	
+	
+
+	
+	
+		</script>
+	</body>
+</html>

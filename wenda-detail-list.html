@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script language="javascript" src="js/jquery.min.js"></script>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title fcff">问答详情</h1>
+		</header>
+		<div id="scroll" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<ul class="wenda-list dt1 louzhu"></ul>
+				<ul class="wenda-list dt1 loucen"></ul>
+			</div>
+		</div>
+		<script>
+			mui.init({
+				swipeBack: true, //启用右滑关闭功能
+			});
+			var re=0;
+		    mui(".mui-scroll-wrapper").scroll();
+			 //调取问题详情数据
+			var questioninfo = "";
+			var html="";
+			var louzhu_user_id, answer_user_id;
+			mui.plusReady(function(){
+				var w=plus.nativeUI.showWaiting();
+	            var t=setInterval(function(){
+		            w.setTitle("请等待...");
+                    jiazai();
+					clearInterval(t);
+					w.close();
+	                },800);	
+				var self = plus.webview.currentWebview();
+				questioninfo = self.qid;
+				function jiazai() {
+					$.ajax({
+						type: "get",
+						dataType: "json",
+						async: false,
+						cache: false,
+						url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+						data: {
+							app: "mobile.question",
+							act: "getQuestionInfo",
+							q_id: questioninfo
+						},
+						success: function(msg) {
+							louzhu_user_id= msg.data.user_id;
+							var head_img = "";
+							if (msg.data.head_url == null) {
+								head_img = "http://statics.chinaxiejun.com/image/default_head.jpg";
+							} 
+							else {
+								head_img = "http://img.chinaxiejun.com/" + msg.data.head_url + ".60x60.jpg";
+							}
+							var str = "";
+							var nei=msg.data.desc;
+							    nei = nei.replace(/<[^>]+>/g,"");//去除<>中所有内容
+								nei = nei.replace(/(^\s*)|(\s*$)/g, '');//去除字符两端空格 
+                                nei = nei.replace(/&nbsp;/ig, "");//去除文本空格
+								str += "<li><div class='wbox'>";
+								str += "<div class='l'><img src='" + head_img + "' class='p' /></div>";
+								str += "<div class='r'><div class='t'><div class='fl'>" + msg.data.nick_name + "<span>(楼主)</span></div><div class='fr'>" + msg.data.create_time + "</div></div>";
+								str += "<div class='t1' id='desc' style='text-indent:2em;'>" + nei + "</div></div></div>";
+								str += "<div class='b'><span>来自【"+msg.data.qtype_name+"】</span><span id='lz_huifu'>回复("+msg.data.answer_count+")</span></div></li>";
+							$(".louzhu").append(str);
+                            jiazaianswer();
+						}
+					});
+				}
+				
+			    //调取问答数据
+				function jiazaianswer(){
+					$.ajax({
+						type: "get",
+						dataType: "json",
+						async: false,
+						url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+						data: {
+							app: "mobile.question",
+							act: "getQuestionAns",
+							q_id: questioninfo
+						},
+						success: function(msg) {
+							var parentid;
+							var k=1;
+							$.each(msg.data.list, function(i,item) {
+								var str = "";
+								answer_user_id=item.user_id;
+								var answerid=item.answer_id;
+								parentid=item.parent_id;
+                                if(parentid<=0){
+									if(item.head_url == null) {
+										head_img_answer = "http://statics.chinaxiejun.com/image/default_head.jpg";
+									} 
+									else{
+										head_img_answer = "http://img.chinaxiejun.com/" + item.head_url + ".60x60.jpg";
+									}									
+									html="("+k+"楼)";//显示楼层
+									k+=1;																		
+									var nei2=item.content;
+									    nei2= nei2.replace(/<[^>]+>/g,"");
+									    nei2= nei2.replace(/(^\s*)|(\s*$)/g, ''); 
+	                                    nei2= nei2.replace(/&nbsp;/ig, "");
+										str += "<li><div class='wbox'>";
+										str += "<div class='l'><img src='" + head_img_answer + "' class='p' /></div>";
+										str += "<div class='r'><div class='t'><div class='fl'>" + item.nick_name +"<span>"+html+"<span></div><div class='fr'>" + item.create_time + "</div></div>";
+										str += "<div class='t1' id='desc' style='text-indent:2em;'>" + nei2 + "</div>";
+										str += "<div class='t2' style='margin:5px 0px 5px 0px;'><span id='zan' answer_id='"+item.answer_id+"'>赞(<span id='zancount' an_id='"+item.answer_id+"'>" + item.zan + "</span>)</span><span q_id='"+item.answer_id+"' style='margin-left:15px;' id='huifu'>回复</span></div>";																										    										
+										str += "<div id='"+item.answer_id+"' pid='"+item.parent_id+"' class='reanswer'></div>";
+										str += "</div></div></li>";
+										$(".loucen").append(str);
+								    }  		    
+							    });	
+							    $(".reanswer").each(function(){					
+									var anid=$(this).attr("id");
+									var paid=$(this).attr("pid");
+									var sel=$(this);
+							        getanswer(questioninfo,paid,sel,anid);
+							    });
+						}
+					});
+				}
+			//获取问答下的问答
+			function getanswer(a,b,c,d){
+						$.getJSON("http://api.chinaxiejun.com/index.php?jsoncallback=?",
+							{
+								app:"mobile.question", 
+								act:"getQuestionAns",
+								q_id:a,
+								parent_id:b
+							},
+							function(msg){
+								var str="";
+								$.each(msg.data.list, function(i,item){
+									var parentid=item.parent_id;
+									if(parentid>0 && parentid==d){
+										if(item.head_url == null) {
+										    head_img_answer = "http://statics.chinaxiejun.com/image/default_head.jpg";
+									    } 
+									    else{
+										    head_img_answer = "http://img.chinaxiejun.com/" + item.head_url + ".60x60.jpg";
+									    }									
+									    var ne= item.content;
+									    ne= ne.replace(/<[^>]+>/g,"");
+										ne= ne.replace(/(^\s*)|(\s*$)/g, ''); 
+			                            ne= ne.replace(/&nbsp;/ig, "");
+									    str +="<div style='width:100%;'><div class='wbox'><div class='l' style='width:10%;'><img src='" + head_img_answer + "' style='width:25px;height:25px;border-radius:50%;'/></div><div class='r' style='margin-right:-10px;'><div class='t'><div class='fl'>" + item.nick_name +"</div><div class='fr'>" + item.create_time + "</div></div><div class='t1' id='desc'>" + ne + "</div></div></div>";							    
+									}
+								});
+							    c.append(str);
+							}
+						)
+			}
+			        //点击跳转回复页面
+					mui(".loucen").on("tap","#huifu",function(){
+						if(re==1){return;}
+						else{
+							re=1;
+							var parent_id=this.getAttribute("q_id");
+		                    checklogin(questioninfo,parent_id);
+						}
+						setTimeout(function(){re=0;},200);
+					})
+					
+					mui(".louzhu").on("tap","#lz_huifu",function(){
+						if(re==1){return;}
+						else{
+							re=1;
+							var parent_id=0;
+	                    	checklogin(questioninfo,parent_id);
+						}
+						setTimeout(function(){re=0;},200);					
+					})			
+			});
+			
+
+
+			//点击跳转回复页面，验证是否登录
+			function checklogin(a,b){
+			    if(plus.storage.getItem("userid")){
+					mui.openWindow({
+						url:"huifu.html",
+						id:"huifu",
+						styles:{
+							top:"0",
+							bottom:"0",
+							popGesture:'none'
+						},
+						extras:{
+							q_id:a,
+							parent_id:b,
+							xianshi:0
+						},
+						createNew:false,
+						show:{
+							autoShow:true,
+							aniShow:"pop-in",
+							duration:200
+						},
+						waiting:{
+							autoShow:false,				   
+						}
+					});
+				}
+				else{
+					plus.nativeUI.alert("要先登录才能回复哦！",function(e){ 
+			        	if(e.index==0){		        			
+				        	mui.openWindow({
+								url:"login.html",
+								id:"login",
+								styles:{
+									top:"0",
+									bottom:"0",
+									popGesture:'none'
+								},
+								extras:{
+									logid:4
+								},
+								createNew:false,
+								show:{
+									autoShow:true,
+									aniShow:"pop-in",
+									duration:200
+								},
+								waiting:{
+									autoShow:false,				   
+								}
+							});
+						}        		
+		        	},"提示","确定"); 
+				}
+			}
+			
+			//点赞功能的实现
+			mui.plusReady(function(){
+				mui(".wenda-list").on('tap','#zan',function(){
+					if(re==1){return;}
+					else{
+						re=1;
+						var answer_id=this.getAttribute("answer_id");	
+						if(plus.storage.getItem("userid")){		
+							var userid=plus.storage.getItem("userid");						
+							$.ajax({
+								type: "get",
+								dataType: "json",
+								async: false,
+								url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+								data: {
+									app : "mobile.question",
+				                    act : "increzan",
+				                    answer_id : answer_id,
+				                    user_id : userid
+								},
+								success: function(data){
+									if(data.code==1000){
+										mui.toast("点赞成功");
+										changecount(answer_id);
+									}
+									else{
+										mui.toast("已赞过");									
+									}
+								}
+							});
+						}
+						else{
+							plus.nativeUI.alert("要先登录才能点赞哦！",function(e){ 
+				        		if(e.index==0){		        			
+					        	    mui.openWindow({
+										url:"login.html",
+										id:"login",
+										styles:{
+											top:"0",
+											bottom:"0",
+											popGesture:'none'
+										},
+										extras:{
+											logid:5
+										},
+										createNew:false,
+										show:{
+											autoShow:true,
+											aniShow:"pop-in",
+											duration:200
+										},
+										waiting:{
+											autoShow:false,				   
+										}
+									});
+								}        		
+			        	    },"提示","确定"); 
+						}
+					}
+					setTimeout(function(){re=0;},200);
+				})
+				
+				//赞的数量+1
+				function changecount(c){
+					$(".wenda-list #zancount").each(function(){
+						var an_id=$(this).attr("an_id");
+						if(an_id==c){
+							var zancount=$(this).text();
+							zancount++;
+							$(this).text(zancount);
+						}
+					})
+				}								
+			});
+				
+		</script>
+
+	</body>
+
+</html>

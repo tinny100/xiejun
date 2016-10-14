@@ -1,0 +1,244 @@
+{
+  "index.html": {
+    "resources": [
+      "dianbo.html",
+      "js/app.js",
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mbbest.css",
+      "css/iconfont.css",
+      "css/mui.min.css",
+      "css/style.css",
+      "fonts/iconfont.ttf",
+      "js/mui.view.js"
+    ],
+    "refer": [
+      "dianbo.html",
+      "zhibo.html",
+      "wode.html",
+      "shop.html",
+      "wenda.html",
+      "wodeno.html",
+      "goin.html",
+      "tiwen.html",
+      "setting.html",
+      "search.html"
+    ]
+  },
+  "goin.html": {
+    "resources": [
+      "images/appyd3.jpg",
+      "images/appyd1.jpg",
+      "images/appyd2.jpg"
+    ]
+  },
+  "dianbo.html": {
+    "resources": [
+      "images/sy2.jpg",
+      "images/sy1.jpg",
+      "images/grey.jpg",
+      "js/jquery.lazyload.js",
+      "images/zhanlue.png",
+      "images/sy3.jpg",
+      "images/gonj.png",
+      "images/zhihui.png",
+      "css/swiper.min.css",
+      "js/swiper.min.js",
+      "images/zhaopin.png",
+      "images/fuli.png",
+      "images/jixiao.png",
+      "images/jili.png",
+      "images/peixun.png",
+      "js/jquery.min.js",
+      "css/mbbest.css",
+      "css/style.css",
+      "js/mui.min.js",
+      "css/mui.min.css"
+    ],
+    "refer": [
+      "vdetail-info.html",
+      "list.html"
+    ]
+  },
+  "wode.html": {
+    "resources": [
+      "images/hd.jpg"
+    ]
+  },
+  "wenda.html": {
+    "resources": [
+      "js/mui.pullToRefresh.js",
+      "images/wdimg.jpg",
+      "js/mui.pullToRefresh.material.js"
+    ]
+  },
+  "wodeno.html": {
+    "resources": [
+      "images/jixiao.png",
+      "images/9yg.png",
+      "images/jili.png",
+      "images/peixun.png",
+      "fonts/mui.ttf",
+      "css/iconfont.css",
+      "fonts/iconfont.ttf",
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "css/style.css"
+    ],
+    "refer": [
+      "mycourse.html",
+      "myanswer.html",
+      "mytiwen.html"
+    ]
+  },
+  "vdetail-info.html": {
+    "resources": [
+      "js/mui.pullToRefresh.js",
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "js/mui.pullToRefresh.material.js",
+      "fonts/mui.ttf",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "css/style.css"
+    ],
+    "refer": [
+      "login.html"
+    ]
+  },
+  "login.html": {
+    "resources": [
+      "images/logo_small.png"
+    ]
+  },
+  "shop.html": {
+    "resources": [
+      "js/app.js",
+      "js/jquery.min.js",
+      "fonts/mui.ttf",
+      "js/mui.view.js",
+      "js/mui.min.js",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "css/style.css"
+    ],
+    "refer": [
+      "pay.html"
+    ]
+  },
+  "pay.html": {
+    "resources": [
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "images/ico-wx.png",
+      "images/_r2_c2.png"
+    ],
+    "refer": [
+      "paysuc.html"
+    ]
+  },
+  "list.html": {
+    "resources": [
+      "js/common.js",
+      "list-info.html",
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "css/style.css"
+    ],
+    "refer": [
+      "list-info.html"
+    ]
+  },
+  "list-info.html": {
+    "resources": [
+      "images/loading.gif"
+    ],
+    "refer": [
+      "vdetail-info.html"
+    ]
+  },
+  "mycourse.html": {
+    "resources": [
+      "js/jquery.lazyload.js",
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "css/style.css"
+    ],
+    "refer": [
+      "vdetail-info.html"
+    ]
+  },
+  "tiwen.html": {
+    "resources": [
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mbbest.css",
+      "css/mui.min.css",
+      "css/style.css"
+    ]
+  },
+  "paysuc.html": {
+    "resources": [
+      "js/mui.min.js",
+      "images/paysuc.png",
+      "css/mbbest.css",
+      "css/mui.min.css"
+    ],
+    "refer": [
+      "myorder.html"
+    ]
+  },
+  "myorder.html": {
+    "resources": [
+      "js/mui.pullToRefresh.js",
+      "js/mui.pullToRefresh.material.js"
+    ]
+  },
+  "setting.html": {
+    "resources": [
+      "js/app.js",
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css"
+    ]
+  },
+  "search.html": {
+    "resources": [
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "css/style.css"
+    ]
+  },
+  "myanswer.html": {
+    "resources": [
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css"
+    ]
+  },
+  "mytiwen.html": {
+    "resources": [
+      "js/jquery.min.js",
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css"
+    ]
+  }
+}

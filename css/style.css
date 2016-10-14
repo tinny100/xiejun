@@ -1,0 +1,108 @@
+
+/*头部样式*/
+header.mui-bar{ background:#337ab7;}
+header .mui-icon{color: #fff;}
+header .mui-icon:active{ background: #2D6B9F;}
+.swiper-slide{ text-align: left;}
+/* 底部切换按钮样式 */	
+.footer .mui-bar{ background-color: #337ab7;}
+.footer .mui-tab-item{color: #fff;}
+.footer .mui-tab-item.mui-active{color: #fff; background: #2369A5;}
+.footer1{height: 50px; padding-top: 9px; width: 100%; position: fixed; bottom: 0px;left:0px; border-top:1px solid #ddd ; z-index: 10; background: #fff;}
+.footer1 .mui-btn:first-child{float: left; margin-left: 40px;}
+.footer1 .mui-btn:last-child{float: right; margin-right: 40px;}
+.ico-cart:before{content: '\e6f0';}
+/*end*/
+body{background-color: #efeff4;}
+.bgff{ background: #fff;}
+.bgcc{ background:#efeff4;}
+.mainnav{ zoom:1; overflow:hidden;padding: 10px 0; width: 100%;}
+.mainnav .item{ float: left; width: 25%;}
+.mainnav .item a{ display: block;}
+.mainnav .item a:active{ background: #eee;}
+.h44{height:44px;}
+.h30{height:30px;}
+.h50{height:50px;}
+.swiper-container {width: 100%;height:auto;}
+.swiper-slide {background: #fff;}
+.item-content{ background: #fff;}
+.item-tit{zoom:1; overflow: hidden; height: 40px; line-height: 40px;}
+.item-tit .mc{ font-size: 14px; float: left; padding-left: 15px; font-weight: bold;}
+.item-tit .more{ font-size: 12px; float: right; padding:0 15px;}
+.mui-table-view.mui-grid-view .mui-table-view-cell .mui-media-body{margin-top: 10px;}
+.mui-table-view.mui-grid-view .mui-table-view-cell .mui-media-body{font-size: 12px;}
+.mui-table-view.st1 .mui-media-body{ white-space: normal;}
+.mui-table-view.st1 .mui-media-body div{ white-space: nowrap; overflow: hidden; width: 100%;text-overflow: ellipsis; zoom:1;}
+.mui-table-view.mui-grid-view.st1 .mui-table-view-cell .mui-media-body{ height: auto; line-height: 17px;}
+.mui-table-view.mui-grid-view.st1 {border-top: 1px solid #ddd;}
+.mui-table-view.mui-grid-view.st1 {border-bottom: 1px solid #ddd;}
+.mui-table-view.mui-grid-view.st1:after{content: ''; display: none;}
+.mui-table-view.mui-grid-view.st1:before{content: ''; display: none;}
+.mui-table-view.mui-grid-view.st1.nobd-t{border-top:none ;}
+.tab-st0{height: 40px; border-bottom:1px #ddd solid ;display: -webkit-box;}
+.tab-st0 div{-webkit-box-flex: 2; text-align: center; line-height: 38px; font-size: 14px;}
+.tab-st0 div.on{ border-bottom: 2px solid #337ab7;}
+.wenda-list{ width: 100%;}
+.wenda-list li{zoom:1; overflow: hidden; padding: 10px; border-bottom: 1px solid #ddd; position: relative;}
+.wenda-list li .l{ width: 20%;}
+.wenda-list li .l .p{ width: 100%;-webkit-border-radius: 50px;display: block;}
+.wenda-list li .r{-webkit-box-flex: 1; padding: 0 10px;}
+.wenda-list li .r .t{zoom:1; overflow: hidden; color: #666;}
+.wenda-list li .r .t1{ padding-top: 5px;}
+.wenda-list li .r .t2 {text-align: right;font-size:12px;}
+.wenda-list li .b{display: -webkit-box; color: #666; padding-top: 10px;}
+.wenda-list li .b span{ display: block;}
+.wenda-list li .b span:first-child{width: 55%;}
+.wenda-list li .b span:nth-child(2) , .wenda-list li .b span:nth-child(3){-webkit-box-flex: 1;text-align: right; width: 100%;}
+.wenda-list li .wbox .r .t1 {font-size: 12px;color:#000000;white-space: normal;}
+.wenda-list li .wbox .r .t .fl span{color:#0000FF}
+.wenda-list li .t1 p{color:#000000;font-size: 12px;}
+.wenda-list li #desc img{width:24px;height:24px;}
+.wenda-list li .t1 .d{ margin-top: 5px;}
+.wenda-list li .t1 .d b{ font-weight: bold;}
+.wenda-list.dtl li {border: none;}
+.wenda-list.dtl li:after{content: ' '; position: absolute; height:1px; bottom:0px; right:0px; background: #ddd; width: 80%;}
+.wenda-list.dtl li:first-child{background: #D9D9D9;}
+.wenda-list.dtl li:first-child:after{content: ' '; display: none;}
+.mui-search.st0{ width: 83%;}
+.kws{zoom:1; overflow: hidden; padding: 10px;}
+.kws span{ float: left; white-space: nowrap; height: 30px; line-height: 30px; padding: 0 15px; color: #337ab7;}
+.fix-r{ position: fixed; top:10px; right: 10px;}
+.rightnavlist{ position: fixed; width: 100%; top: 6%; left: 0px; overflow-y: auto; height: 89%;}
+.rightnavlist dl{ padding:5px 15px; color: #fff; margin-bottom: 10px;}
+.rightnavlist dt{ font-weight: bold; font-size: 14px; color: #ddd;height: 30px; line-height: 30px; }
+.rightnavlist dd{ color: #999; height: 30px; line-height: 30px; margin-left: 25px; border-bottom: 1px solid #666;}
+.rightnavlist dd:active ,.rightnavlist dt:active{background: #666;}
+.dtl-video{ width: 100%;}
+.video-jianjie{ text-align: left;}
+.video-jianjie .t1 .fl{ font-size: 16px;}
+.video-jianjie .t1 .fr{ font-size: 16px; color: #FF3300;}
+.video-jianjie .t1 .fr .fr_buy{border:1px solid #FF3300;margin-left:5px;border-radius:3px;}
+.video-jianjie .t2{ margin-top: 5px; color: #666;}
+.video-jianjie .t3{ margin-top: 10px; color: #666; border: 1px solid #ddd; padding: 10px; height: 150px; overflow-y: auto;}
+.line-list{ width: 100%; text-align: left; padding: 10px;}
+.line-list li{ height: 40px; line-height: 40px; border-bottom: 1px solid #ddd; padding-right: 20px; overflow: hidden; white-space: nowrap; position: relative;color:#666;)}
+.line-list li .mui-icon{ color: #337ab7; font-size: 16px;}
+.line-list li:after{border: #ccc solid;border-width: 1px 1px 0 0;-webkit-transform: rotate(45deg);content: ' ';position: absolute;top: 15px;right: 10px;width: 10px;height: 10px;}
+.line-list li:active{background: #eee;}
+
+.list-box{height: 100%; display: -webkit-box;-webkit-box-orient:vertical;}
+.list-box .box1{ height: 88px; overflow: hidden;}
+.list-box .box2{ -webkit-box-flex: 1; overflow-y: auto;}
+
+.showlist li a:active{ background: #eee;}
+
+/*数据读取样式*/
+.swiper-wrapper{height: auto;}
+.btn-refresh{width: 100%; height: 40px; font-size: 14px; border-radius: 0px;}
+.Refresh{text-align: center;}
+
+/*我的页面样式*/
+.main_header{width:100%;height:100px;background-color: white;font-size: 14px;}
+.main_header .user_img{width:80px;display: inline-block;}
+.main_header .user_img img{border-radius: 50%;margin: 10px 0px 0px 10px;}
+.main_header .user_name .name{height: 30px;line-height: 30px;}
+.main_header .user_name .user_id{height: 30px;line-height: 30px;}
+.main_header .user_name .btn{margin-top: 8px;width: 100%;}
+.fenlei{margin-top: 10px;}
+

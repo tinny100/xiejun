@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   	<title></title>
+	<script src="js/mui.min.js"></script>
+	<script type="text/javascript" src="js/common.js"></script>
+	<script language="javascript" src="js/jquery.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+		<style>
+			body,.mui-content {background-color: #333;color: #fff;}
+			header.mui-bar{display: none;}
+			.mui-bar-nav~.mui-content{padding: 0;}
+			.title{margin: 35px 15px 10px;}
+			.title+.content{margin: 10px 15px 35px;color: #bbb;text-indent: 1em;font-size: 14px;line-height: 24px;}
+			.mui-table-view{margin-bottom: 35px;}
+		</style>
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<div class="fix-r">
+	      		<span class="mui-icon mui-icon-close mui-action-back fcff"  id="mui-icon-close"></span>
+		    </div>
+				<div class="rightnavlist showlist">	          
+		          <script>	
+		          mui.init();
+						$.getJSON(
+							"http://api.chinaxiejun.com/index.php?jsoncallback=?", 
+							{
+								app : "mobile.course",
+								act : "get_category"
+								},
+							function(msg){
+								var d = msg.data;
+								var dd = msg.data.sub_cate;
+								var str = "";
+								$.each(d, function(i,item){//一级类目显示
+										str += "<dl>";
+										str += "<dt id='"+item.cate_id+"' class='dd'>"+item.cate_name+"</dt>";
+//										$.each(item.sub_cate, function(i,item){//二级类目显示
+//											str += "<dd id='"+item.cate_id+"' class='dd'>"+item.cate_name+"</dd>";
+//										})
+										str += "</dl>";						
+								})								
+								$(".showlist").append(str);								
+							}
+						);	
+					
+						mui.plusReady(function(){							
+							mui("dl").on("tap",".dd",function(){
+								var list=plus.webview.getWebviewById("list");
+							    var listinfo = plus.webview.getWebviewById("list-info");
+								var nid = $(this).attr("id");
+								var nname = $(this).html();
+								mokuai_name=nname.substr(1,4);	
+								listinfo.close();
+								list.evalJS("$('.mui-title').html('"+mokuai_name+"');subpage("+nid+");");		                
+						        mui.back();                             
+							});							
+						});
+					</script>          
+	          	</div>		
+			</div>
+		</div>
+	
+</body>
+</html>
+
+

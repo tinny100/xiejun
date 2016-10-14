@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.lazyload.js"></script>
+    <link href="css/mbbest.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <style type="text/css">
+	    ul{list-style: none;}
+	    li{margin:10px 10px 10px 10px;}
+	    .splb{display:-webkit-box;}
+	    .video,.sp{width:50%;height:100px;-webkit-box-flex: 1;}
+	    .name{display:inline-block;height:30%;width:100%;text-align: center;margin-top: 10%;}
+	    .name span{font-size:14px;}
+	    .builder{display:-webkit-box;height: 40%;margin-top: 10%;}
+	    .builder_left,.builder_right{-webkit-box-flex: 1;text-align: center;}
+	    .builder span{font-size:12px;}
+	    .video img{height: 100px; width: 100%;}
+    </style>
+</head>
+<body>
+	
+<div class="mui-content">
+	<ul class="spxq"></ul>
+	    <div class="Refresh Refresh1"></div>
+	</ul> 	   
+</div>
+ <script type="text/javascript">
+ mui.init();
+ var searchvalue="";
+    mui.plusReady(function(){
+   	var self=plus.webview.currentWebview();
+   	    searchvalue=self.word;
+	    var m=1;
+	    var pagenum=0;
+	    function jiazaishuju(m,n){	    	
+	    	var n=10;	    	
+			$.ajax({
+			   type: "get",
+			   dataType: "json",
+			   async:false,
+			   url: "http://api.chinaxiejun.com/index.php?jsoncallback=?",
+			   data:{app : "mobile.course",
+			         act : "search",
+			         cur_page : m,
+			         page_size :n,
+			         word :searchvalue},
+			   success: function(msg){			   	
+			   	pagenum =Math.ceil(msg.data.total_num/n);	
+			   	d=msg.data.total_num;
+			   	if(d==0){
+			   		$(".spxq").remove();
+			   		$(".mui-content").append("<div id='novideo' style='margin-top:50px;text-align: center;width: 100%;font-size:14px;'><span>没有搜索到你要的视频，换个关键字试试！</span></div>");
+			   	}
+			   	var str="";
+				$.each(msg.data.list, function(i,item){					
+					str += "<li cid='"+item.c_id+"'cname='"+item.c_name+"' class='splb'><div class='video'><img src='"+item.img+".162x100.jpg'></div>";
+					str += "<div class='sp'><div class='name'><span>"+item.c_name+"</span></div><div class='builder'><div class='builder_left'><span>讲师："+item.teacher+"</span></div><div class='builder_right'><span>"+item.num_learner+"人在学</span></div></div></div></li>";																
+				});
+				    $(".spxq").append(str);
+				    
+				}
+			});
+	    }	 
+	    jiazaishuju();
+   
+
+
+   
+            //上拉加载更多  
+            setTimeout(function(){
+            	var vi=document.getElementById("novideo");
+            	if(!vi){
+				    $(document).ready(function(){
+			        var totalheight = 0;   
+			        var main = $(".item-content");                     //主体元素  
+			        $(window).scroll(function(){  
+			            var srollPos = $(window).scrollTop();    //滚动条距顶部距离(页面超出窗口的高度)  
+			            totalheight = parseFloat($(window).height()) + parseFloat(srollPos);           
+			            $(".Refresh1").html("<button class='btn-refresh' disabled='disabled'>加载中<img src='images/loading.gif' width='20' /></button>");
+			            if($(document).height() <= totalheight){
+			            	if(m>=pagenum){                	
+			        			$(".Refresh1").html("<button class='btn-refresh' disabled='disabled'>没有更多数据了</button>");
+			            	}
+			                setTimeout(function(){
+			                m++;
+			                jiazaishuju(m);},1500)}       
+					    });  
+					});
+            	}
+				},1500)
+
+				//点击进入视频详情页
+				var re=0;
+				mui(".spxq").on('tap', 'li', function() {
+					if(re==1){return;}
+					else{
+						re=1;
+						var cid = $(this).attr("cid");
+						var cname = $(this).attr("cname");
+						mui.openWindow({
+						    url:"vdetail-info.html",
+						    id:"vdetail-info",
+						    styles:{
+						        top:"0",
+						        bottom:"0",
+						      	popGesture:'none',
+								hardwareAccelerated:true	
+						    },
+						    extras:{
+						     c_id: cid,
+							 c_name: cname
+						    },
+						    createNew:false,
+						    show:{
+						      autoShow:true,
+						      aniShow:"pop-in",
+						      duration:250
+						    },
+						    waiting:{
+						      autoShow:false
+						    }
+						})
+					}
+					setTimeout(function(){re=0;},200)
+				});					
+});
+
+	 </script>   
+
+     	
+	      
+	
+	       
+</body>
+</html>
